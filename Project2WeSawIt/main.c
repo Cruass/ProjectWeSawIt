@@ -7,6 +7,7 @@ int main() {
     printf("C is a powerful programming language.\n");
     printf("HIMAKOM apresiasi.\n");
     printf("MAKOM MAKOM.\n");
+    printf("DBU SENOR PLIS TERIMA GUA\n");
 
     return 0;
 }
