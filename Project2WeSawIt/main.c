@@ -8,7 +8,8 @@ int main() {
     printf("HIMAKOM apresiasi.\n");
     printf("MAKOM MAKOM.\n");
     printf("DBU SENOR PLIS TERIMA GUA\n");
-
+    printf("DBU KOMINFO PLIS TERIMA GUA\n");
+    
     return 0;
 }
 
