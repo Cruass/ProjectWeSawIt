@@ -6,6 +6,8 @@ int main() {
     printf("This is a simple C program.\n");
     printf("C is a powerful programming language.\n");
     printf("HIMAKOM apresiasi.\n");
+    printf("MAKOM MAKOM.\n");
+
     return 0;
 }
 
