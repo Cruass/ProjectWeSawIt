@@ -1,5 +1,5 @@
-Cara Setup Environmet:
-test
+## Cara Setup Environmet:
+Lorem ipsum
 
 ## Identitas Anggota
 
