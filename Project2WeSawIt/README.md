@@ -17,8 +17,8 @@
 
    ```cd Project2WeSawIt```
 
-### 
-
+## ___🖱 Cara Penggunaan___
+### Di terminal yang sama ketik perintah texteditor.exe
 
 
 ## ___👥 Identitas Anggota 👥___
