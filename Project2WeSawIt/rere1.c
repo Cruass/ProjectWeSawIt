@@ -5,7 +5,7 @@
 // Prototipe fungsi
 void createNewFile();
 void openFile();
-void saveFile();
+void editFile();
 void exitEditor();
 void mainMenu();
 
@@ -24,7 +24,7 @@ void mainMenu() {
         printf("===========================================\n");
         printf("| \033[1;32m1. Create New File\033[1;34m                      |\n");
         printf("| \033[1;32m2. Open File\033[1;34m                   |\n");
-        printf("| \033[1;32m3. Save Current File\033[1;34m                    |\n");
+        printf("| \033[1;32m3. Edit File\033[1;34m                    |\n");
         printf("| \033[1;31m4. Exit Editor\033[1;34m                          |\n");
         printf("===========================================\n");
         printf("\033[1;37mEnter your choice: \033[0m");
@@ -41,7 +41,7 @@ void mainMenu() {
                 openFile();
                 break;
             case 3:
-                saveFile();
+                editFile();
                 break;
             case 4:
                 exitEditor();
@@ -115,13 +115,13 @@ void openFile() {
     fclose(file);
 }
 
-void saveFile() {
+void editFile() {
     char filename[100];
     char text[1000];
     FILE *file;
 
-    printf("\n\033[1;36m=== SAVE FILE ===\033[0m\n");
-    printf("Enter filename to save: ");
+    printf("\n\033[1;36m=== EDIT FILE ===\033[0m\n");
+    printf("Enter filename to edit: ");
     fgets(filename, sizeof(filename), stdin);
     filename[strcspn(filename, "\n")] = '\0';
 
