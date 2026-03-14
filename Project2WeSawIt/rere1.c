@@ -23,8 +23,8 @@ void mainMenu() {
         printf("|            \033[1;33mTEXT EDITOR MENU\033[1;34m             |\n");
         printf("===========================================\n");
         printf("| \033[1;32m1. Create New File\033[1;34m                      |\n");
-        printf("| \033[1;32m2. Open File\033[1;34m                   |\n");
-        printf("| \033[1;32m3. Edit File\033[1;34m                    |\n");
+        printf("| \033[1;32m2. Open File\033[1;34m                            |\n");
+        printf("| \033[1;32m3. Edit File\033[1;34m                            |\n");
         printf("| \033[1;31m4. Exit Editor\033[1;34m                          |\n");
         printf("===========================================\n");
         printf("\033[1;37mEnter your choice: \033[0m");
