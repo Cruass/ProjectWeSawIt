@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include "irfan1.h"
 
 void mainMenu();
 
