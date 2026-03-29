@@ -1,20 +1,9 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "zidan.h"
-
-void findAndReplace() {
-    char filename[100];
+void findAndReplace(char filename[]) {
     char find[100], replace[100];
     char buffer[1000];
     char result[5000] = "";
 
-    FILE *fp;
-
-    printf("Masukkan nama file: ");
-    scanf("%s", filename);
-
-    fp = fopen(filename, "r");
+    FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
         printf("File tidak ditemukan!\n");
         return;
