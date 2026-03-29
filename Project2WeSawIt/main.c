@@ -1,6 +1,5 @@
 #include "irfan1.h"
-
-void mainMenu();
+#include "zidan.h"
 
 int main() {
     mainMenu();
