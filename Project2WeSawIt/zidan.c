@@ -1,3 +1,8 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include "zidan.h"
+
 void findAndReplace(char filename[]) {
     char find[100], replace[100];
     char buffer[1000];
