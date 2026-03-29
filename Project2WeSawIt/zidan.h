@@ -1,6 +1,6 @@
 #ifndef ZIDAN_H
 #define ZIDAN_H
 
-void findAndReplace();
+void findAndReplace(char filename[]);
 
 #endif
