@@ -6,7 +6,7 @@
 void findAndReplace(char filename[]) {
     char find[100], replace[100];
     char buffer[1000];
-    char result[5000] = "";
+    char result[10000] = "";
 
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
@@ -15,10 +15,18 @@ void findAndReplace(char filename[]) {
     }
 
     printf("Kata yang ingin dicari: ");
-    scanf("%s", find);
+    fgets(find, sizeof(find), stdin);
+    find[strcspn(find, "\n")] = 0;
+
+    if (strlen(find) == 0) {
+        printf("Input tidak boleh kosong!\n");
+        fclose(fp);
+        return;
+    }
 
     printf("Kata pengganti: ");
-    scanf("%s", replace);
+    fgets(replace, sizeof(replace), stdin);
+    replace[strcspn(replace, "\n")] = 0;
 
     while (fgets(buffer, sizeof(buffer), fp)) {
         char temp[1000];
