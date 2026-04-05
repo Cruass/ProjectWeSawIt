@@ -2,7 +2,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-// Prototipe fungsi
 void openFile() {
     char filename[100];
     FILE *file;
@@ -27,35 +26,48 @@ void openFile() {
     printf("\n----------------------------------------\n");
 
     fclose(file);
-}
 
-void editFile() {
-    char filename[100];
-    char text[1000];
-    FILE *file;
+    char choice;
+    printf("\nApakah kamu ingin mengedit file ini? (y/n): ");
+    scanf(" %c", &choice);
+    getchar(); 
 
-    printf("\n\033[1;36m=== EDIT FILE ===\033[0m\n");
-    printf("Enter filename to edit: ");
-    fgets(filename, sizeof(filename), stdin);
-    filename[strcspn(filename, "\n")] = '\0';
+    if (choice == 'y' || choice == 'Y') {
 
-    file = fopen(filename, "w");
-    if (file == NULL) {
-        printf("\033[1;31mError saving file!\033[0m\n");
-        return;
-    }
+        file = fopen(filename, "r");
+        printf("\n\033[1;33mCurrent content:\033[0m\n");
+        printf("----------------------------------------\n");
 
-    printf("Enter your text (end with a blank line):\n");
-    printf("\033[1;32m");
-    while (1) {
-        fgets(text, sizeof(text), stdin);
-        if (strcmp(text, "\n") == 0) {
-            break;
+        while ((ch = fgetc(file)) != EOF) {
+            putchar(ch);
         }
-        fputs(text, file);
-    }
-    printf("\033[0m");
 
-    fclose(file);
-    printf("\033[1;32mFile '%s' saved successfully!\033[0m\n", filename);
+        fclose(file);
+        printf("\n----------------------------------------\n");
+
+        file = fopen(filename, "a");
+        if (file == NULL) {
+            printf("\033[1;31mError opening file!\033[0m\n");
+            return;
+        }
+
+        char text[1000];
+        printf("Add new content (end with blank line):\n");
+        printf("\033[1;32m");
+
+        fputs("\n", file);
+
+        while (1) {
+            fgets(text, sizeof(text), stdin);
+            if (strcmp(text, "\n") == 0) {
+                break;
+            }
+            fputs(text, file);
+        }
+
+        printf("\033[0m");
+        fclose(file);
+
+        printf("\033[1;32mFile '%s' updated successfully!\033[0m\n", filename);
+    }
 }
