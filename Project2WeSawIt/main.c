@@ -9,11 +9,7 @@ int main() {
     int choice;
 
     do {
-        #ifdef _WIN32
         system("cls");
-        #else
-        system("clear");
-        #endif
 
         printf("\033[1;34m");
         printf("            \033[1;33mTEXT EDITOR MENU\033[1;34m             \n");
