@@ -44,11 +44,7 @@ int main() {
                 break;
 
             case 4: {
-                char filename[100];
-                printf("Masukkan nama file: ");
-                fgets(filename, sizeof(filename), stdin);
-                filename[strcspn(filename, "\n")] = 0;
-                findAndReplace(filename);
+                findAndReplace();
                 break;
             }
 

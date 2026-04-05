@@ -3,10 +3,15 @@
 #include <string.h>
 #include "zidan.h"
 
-void findAndReplace(char filename[]) {
+void findAndReplace() {
+    char filename[100];
     char find[100], replace[100];
     char buffer[1000];
     char result[10000] = "";
+
+    printf("Masukkan nama file: ");
+    fgets(filename, sizeof(filename), stdin);
+    filename[strcspn(filename, "\n")] = 0;
 
     FILE *fp = fopen(filename, "r");
     if (fp == NULL) {
