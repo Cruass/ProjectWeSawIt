@@ -4,6 +4,7 @@
 #include "irfan1.h"
 #include "zidan.h"
 #include "rere1.h"
+#include "edit_cursor.h"
 
 int main() {
     int choice;
