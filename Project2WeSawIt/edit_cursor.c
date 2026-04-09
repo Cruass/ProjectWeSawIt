@@ -13,13 +13,11 @@ static int rowCount = 1;
 static int cursorRow = 0, cursorCol = 0;
 static HANDLE hConsole;
 
-// Memuat file ke buffer (jika isNew == 0)
 static void loadFile(const char *filename) {
     FILE *f = fopen(filename, "r");
     if (!f) return;
     rowCount = 0;
     while (rowCount < MAX_ROWS && fgets(text[rowCount], MAX_COLS, f)) {
-        // hilangkan newline di akhir (karena editor tidak pakai newline internal)
         text[rowCount][strcspn(text[rowCount], "\n")] = '\0';
         rowCount++;
     }

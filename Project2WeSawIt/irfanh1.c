@@ -1,17 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "irfan1.h"   // include header buatan sendiri
-
+#include "irfan1.h"  
 void createNewFile() {
     char filename[100];
     FILE *file;
-    char lines[100][256];  // Array 2D: maksimal 100 baris, masing-masing 256 karakter
-    int lineCount = 0;      // Penghitung jumlah baris yang diinput
+    char lines[100][256];  
+    int lineCount = 0;     
 
     printf("Masukkan Nama File : ");
     fgets(filename, sizeof(filename), stdin);
-    filename[strcspn(filename, "\n")] = '\0'; // Hapus newline
+    filename[strcspn(filename, "\n")] = '\0'; 
 
     file = fopen(filename, "w");
     if (file == NULL) {
@@ -20,15 +19,14 @@ void createNewFile() {
     }
 
     printf("Masukkan teks :\n");
-    while (lineCount < 100) { // Batasi maksimal 100 baris
+    while (lineCount < 100) { 
         fgets(lines[lineCount], sizeof(lines[lineCount]), stdin);
-        if (strcmp(lines[lineCount], "\n") == 0) { // Baris kosong berhenti
+        if (strcmp(lines[lineCount], "\n") == 0) { 
             break;
         }
         lineCount++;
     }
 
-    // Tulis semua baris yang tersimpan ke file
     for (int i = 0; i < lineCount; i++) {
         fputs(lines[i], file);
     }

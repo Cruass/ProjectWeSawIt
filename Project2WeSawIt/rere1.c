@@ -29,7 +29,7 @@ void openFile() {
     getchar(); 
 
     if (choice == 'y' || choice == 'Y') {
-        runEditor(filename, 0);   // 0 = file sudah ada, muat isinya
+        runEditor(filename, 0);  
         printf("\033[1;32mFile '%s' telah disimpan.\033[0m\n", filename);
     } else {
         printf("File tidak diedit.\n");
