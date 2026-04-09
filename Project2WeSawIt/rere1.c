@@ -1,8 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "edit_cursor.h"   // tambahkan
-
+#include "edit_cursor.h" 
 
 void openFile() {
     char filename[100];
