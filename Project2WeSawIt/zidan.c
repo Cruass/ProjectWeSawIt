@@ -63,3 +63,19 @@ void findAndReplace() {
 
     printf("Berhasil replace kata!\n");
 }
+
+void handleCursorMovement(int ch, int *cursorRow, int *cursorCol, int rowCount, char text[][256])
+{
+    if (ch == 72 && *cursorRow > 0) {
+        (*cursorRow)--; // up
+    }
+    else if (ch == 80 && *cursorRow < rowCount - 1) {
+        (*cursorRow)++; // down
+    }
+    else if (ch == 75 && *cursorCol > 0) {
+        (*cursorCol)--; // left
+    }
+    else if (ch == 77 && *cursorCol < (int)strlen(text[*cursorRow])) {
+        (*cursorCol)++; // right
+    }
+}
