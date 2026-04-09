@@ -41,37 +41,3 @@ void exitEditor() {
     printf("Terimakasih!\n");
     exit(0);
 }
-
-void mainMenu() {
-    int choice;
-    do {
-        // Hapus layar (gunakan clear jika di Linux/Mac)
-        #ifdef _WIN32
-            system("cls");
-        #else
-            system("clear");
-        #endif
-
-        printf("\033[1;34m");
-        printf("===========================================\n");
-        printf("|            \033[1;33mTEXT EDITOR MENU\033[1;34m             |\n");
-        printf("===========================================\n");
-        printf("| \033[1;32m1. Create New File\033[1;34m                      |\n");
-        printf("| \033[1;32m2. exit\033[1;34m                                 |\n");
-        printf("===========================================\n");
-        printf("Masukkan Pilihan : ");
-        scanf("%d", &choice);
-
-        while (getchar() != '\n'); // bersihkan buffer
-
-        switch(choice) {
-            case 1: createNewFile(); break;
-            case 2: exitEditor(); break;
-            default:
-                printf("\033[1;31mInvalid.\033[0m\n");
-        }
-
-      
-        getchar();
-    } while(choice != 4);
-}
