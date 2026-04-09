@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>   
+#include <stdlib.h>   // <-- tambahkan ini
 #include "irfan1.h"
+#include "edit_cursor.h"   // tambahkan header editor kursor
 
 void createNewFile() {
     char filename[100];
