@@ -24,3 +24,15 @@ static void loadFile(const char *filename) {
     fclose(f);
     if (rowCount == 0) rowCount = 1;
 }
+
+// Simpan file
+static void saveFile(const char *filename) { //Fungsi dibuat oleh Irfan
+    FILE *f = fopen(filename, "w");
+    if (!f) return;
+
+    for (int i = 0; i < rowCount; i++) {
+        fprintf(f, "%s", text[i]);
+        if (i < rowCount - 1) fprintf(f, "\n");
+    }
+    fclose(f);
+}

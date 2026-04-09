@@ -1,5 +1,5 @@
-#ifndef irfan_h1
-#define irfan_h1
+#ifndef irfan1_h
+#define irfan1_h
 
 void createNewFile();
 void exitEditor ();
