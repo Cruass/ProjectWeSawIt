@@ -67,15 +67,15 @@ void findAndReplace() {
 void handleCursorMovement(int ch, int *cursorRow, int *cursorCol, int rowCount, char text[][256])
 {
     if (ch == 72 && *cursorRow > 0) {
-        (*cursorRow)--; // up
+        (*cursorRow)--; // naik
     }
     else if (ch == 80 && *cursorRow < rowCount - 1) {
-        (*cursorRow)++; // down
+        (*cursorRow)++; // turun
     }
     else if (ch == 75 && *cursorCol > 0) {
-        (*cursorCol)--; // left
+        (*cursorCol)--; // kiri
     }
     else if (ch == 77 && *cursorCol < (int)strlen(text[*cursorRow])) {
-        (*cursorCol)++; // right
+        (*cursorCol)++; // kanan
     }
 }
