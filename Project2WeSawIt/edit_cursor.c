@@ -50,3 +50,28 @@ static void render() { //Fungsi dibuat oleh zidan
     COORD pos = {cursorCol, cursorRow};
     SetConsoleCursorPosition(hConsole, pos);
 }
+
+// Fungsi utama editor
+void runEditor(const char *filename, int isNew) {
+    hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+    
+    // Inisialisasi buffer
+    if (!isNew) {
+        loadFile(filename);
+    } else {
+        // file baru: kosongkan semua baris
+        for (int i = 0; i < MAX_ROWS; i++) text[i][0] = '\0';
+        rowCount = 1;
+    }
+    cursorRow = 0;
+    cursorCol = 0;
+    
+    int ch;
+    while (1) {
+        render();
+        ch = _getch();
+        
+        if (ch == 27) { // ESC -> simpan dan keluar
+            saveFile(filename);
+            break;
+        }
