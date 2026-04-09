@@ -1,13 +1,8 @@
 #include <stdio.h>
 #include <string.h>
-<<<<<<< HEAD
-#include "irfan1.h"  
-#include "edit_cursor.h"
-=======
 #include <stdlib.h>   // <-- tambahkan ini
 #include "irfan1.h"
 #include "edit_cursor.h"   // tambahkan header editor kursor
->>>>>>> fitur-irfan
 
 void createNewFile() {
     char filename[100];
