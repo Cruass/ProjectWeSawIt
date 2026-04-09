@@ -75,3 +75,8 @@ void runEditor(const char *filename, int isNew) {
             saveFile(filename);
             break;
         }
+
+        if (ch == 224) { // Memanggil fungsi cursor movement dari zidan.c
+            ch = _getch();
+            handleCursorMovement(ch, &cursorRow, &cursorCol, rowCount, text);
+        }
