@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>   
 #include "irfan1.h"
-#include "edit_cursor.h"   
+
 void createNewFile() {
     char filename[100];
     printf("Masukkan Nama File : ");
