@@ -5,6 +5,7 @@
 #include <windows.h>
 #include "edit_cursor.h"
 #include "zidan.h"
+#include "irfan1.h"
 
 #define MAX_ROWS 100
 #define MAX_COLS 256
@@ -80,3 +81,9 @@ void runEditor(const char *filename, int isNew) {
             ch = _getch();
             handleCursorMovement(ch, &cursorRow, &cursorCol, rowCount, text);
         }
+
+        else {
+            handleTextEditing(ch, text, &cursorRow, &cursorCol, &rowCount); //Memanggil fungsi handleTextEditing dari irfan1.c
+        }
+    }
+}
