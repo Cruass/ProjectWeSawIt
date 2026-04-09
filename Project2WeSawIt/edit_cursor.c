@@ -4,6 +4,7 @@
 #include <conio.h>
 #include <windows.h>
 #include "edit_cursor.h"
+#include "zidan.h"
 
 #define MAX_ROWS 100
 #define MAX_COLS 256
@@ -35,4 +36,17 @@ static void saveFile(const char *filename) { //Fungsi dibuat oleh Irfan
         if (i < rowCount - 1) fprintf(f, "\n");
     }
     fclose(f);
+}
+
+// Merender tampilan
+static void render() { //Fungsi dibuat oleh zidan
+    system("cls");
+
+    for (int i = 0; i < rowCount; i++) {
+        printf("%s", text[i]);
+        if (i < rowCount - 1) printf("\n");
+    }
+
+    COORD pos = {cursorCol, cursorRow};
+    SetConsoleCursorPosition(hConsole, pos);
 }
