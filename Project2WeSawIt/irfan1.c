@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <string.h>
-#include <stdlib.h>   // <-- tambahkan ini
+#include <stdlib.h>
 #include "irfan1.h"
 #include "edit_cursor.h"   // tambahkan header editor kursor
 
