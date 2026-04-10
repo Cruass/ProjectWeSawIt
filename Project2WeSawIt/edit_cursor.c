@@ -15,7 +15,7 @@ static int rowCount = 1;
 static int cursorRow = 0, cursorCol = 0;
 static HANDLE hConsole;
 
-static void loadFile(const char *filename) {
+static void loadFile(const char *filename) { //Fungsi dibuat oleh Rayhan
     FILE *f = fopen(filename, "r");
     if (!f) return;
     rowCount = 0;
@@ -53,7 +53,7 @@ static void render() { //Fungsi dibuat oleh zidan
 }
 
 // Fungsi utama editor
-void runEditor(const char *filename, int isNew) {
+void runEditor(const char *filename, int isNew) { //Fungsi dibuat oleh Rayhan
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
     
     // Inisialisasi buffer
@@ -72,7 +72,7 @@ void runEditor(const char *filename, int isNew) {
         render();
         ch = _getch();
         
-        if (ch == 27) { // ESC -> simpan dan keluar
+        if (ch == 27) { // ESC untuk keluar dan simpan, dibuat oleh Rayhan
             saveFile(filename);
             break;
         }
