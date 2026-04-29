@@ -33,24 +33,32 @@ void findAndReplace() {
     fgets(replace, sizeof(replace), stdin);
     replace[strcspn(replace, "\n")] = 0;
 
+    int found = 0;
+
     while (fgets(buffer, sizeof(buffer), fp)) {
         char temp[1000];
         char *pos, *start = buffer;
 
-        while ((pos = strstr(start, find)) != NULL) {
-            strncpy(temp, start, pos - start);
-            temp[pos - start] = '\0';
+    while ((pos = strstr(start, find)) != NULL) {
+        found++; 
 
-            strcat(result, temp);
-            strcat(result, replace);
+        strncpy(temp, start, pos - start);
+        temp[pos - start] = '\0';
 
-            start = pos + strlen(find);
-        }
+        strcat(result, temp);
+        strcat(result, replace);
 
-        strcat(result, start);
+        start = pos + strlen(find);
     }
 
+    strcat(result, start);
+}
+
     fclose(fp);
+    if(found == 0) {
+        printf("Kata tidak ditemukan dalam file!\n");
+        return;
+    }
 
     fp = fopen(filename, "w");
     if (fp == NULL) {
