@@ -57,18 +57,4 @@ void handleTextEditing(int ch, char text[][256], int *cursorRow, int *cursorCol,
         text[*cursorRow][*cursorCol] = ch;
         (*cursorCol)++;
     }
-
-    else if (ch == 83) { // delete
-        if (*cursorCol < (int)strlen(text[*cursorRow])) {
-            int len = strlen(text[*cursorRow]);
-            for (int i = *cursorCol + 1; i <= len; i++)
-                text[*cursorRow][i-1] = text[*cursorRow][i];
-        }
-        else if (*cursorRow < *rowCount - 1) {
-            strcat(text[*cursorRow], text[*cursorRow+1]);
-            for (int i = *cursorRow + 1; i < *rowCount - 1; i++)
-                strcpy(text[i], text[i+1]);
-            (*rowCount)--;
-        }
-    }
 }
