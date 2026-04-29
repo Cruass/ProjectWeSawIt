@@ -5,7 +5,7 @@
 
 void findAndReplace() {
     char filename[20];
-    char find[20], replace[20];
+    char find[100], replace[100];
     char buffer[1000];
     char result[10000] = "";
 
@@ -32,6 +32,15 @@ void findAndReplace() {
     printf("Kata pengganti: ");
     fgets(replace, sizeof(replace), stdin);
     replace[strcspn(replace, "\n")] = 0;
+
+    if (strlen(replace) > 20) {
+         printf("\n[!] Peringatan: kata pengganti maksimal 20 karakter!\n");
+        return;
+    }
+
+    if (strchr(replace, '\n') == NULL) {
+        while (getchar() != '\n');
+    }
 
     int found = 0;
 
