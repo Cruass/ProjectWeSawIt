@@ -4,8 +4,8 @@
 #include "zidan.h"
 
 void findAndReplace() {
-    char filename[100];
-    char find[100], replace[100];
+    char filename[20];
+    char find[20], replace[20];
     char buffer[1000];
     char result[10000] = "";
 
