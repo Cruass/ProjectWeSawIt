@@ -83,16 +83,34 @@ void findAndReplace() {
 
 void handleCursorMovement(int ch, int *cursorRow, int *cursorCol, int rowCount, char text[][256])
 {
-    if (ch == 72 && *cursorRow > 0) {
-        (*cursorRow)--; // naik
+    if (ch == 72 && *cursorRow > 0) { // naik
+        (*cursorRow)--; 
+        int maxcol = (int)strlen(text[*cursorRow]);
+            if (*cursorCol > maxcol) {
+                *cursorCol = maxcol;
+            }    
     }
-    else if (ch == 80 && *cursorRow < rowCount - 1) {
-        (*cursorRow)++; // turun
+    else if (ch == 80 && *cursorRow < rowCount - 1) { //TURUN
+        (*cursorRow)++; 
+        int maxcol = (int)strlen(text[*cursorRow]);
+            if (*cursorCol > maxcol) {
+                *cursorCol = maxcol;
+            }    
     }
-    else if (ch == 75 && *cursorCol > 0) {
-        (*cursorCol)--; // kiri
+    else if (ch == 75 ) { // KIRI
+        if (*cursorCol > 0){
+            (*cursorCol)--;
+        }else if (*cursorCol == 0 && *cursorRow > 0) {
+            (*cursorRow)--;
+            *cursorCol = (int)strlen(text[*cursorRow]);
+        }
     }
-    else if (ch == 77 && *cursorCol < (int)strlen(text[*cursorRow])) {
-        (*cursorCol)++; // kanan
+    else if (ch == 77) {
+        if (*cursorCol < (int)strlen(text[*cursorRow])) { // KANAN
+            (*cursorCol)++;
+        }else if (*cursorCol == (int)strlen(text[*cursorRow]) && *cursorRow < rowCount - 1) { 
+            (*cursorRow)++;
+            *cursorCol = 0;
+        }
     }
 }
