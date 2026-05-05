@@ -1,9 +1,10 @@
-#ifndef irfan1_h
-#define irfan1_h
-#include "edit_cursor.h"      // MAX_ROWS ada di sini
+#ifndef EDIT_CURSOR_H
+#define EDIT_CURSOR_H
 
-void createNewFile();
-void exitEditor ();
-void handleTextEditing(int ch, char text[][MAX_COLS], int *cursorRow, int *cursorCol, int *rowCount);
+#define MAX_ROWS 100
+#define MAX_COLS 100
+
+void runEditor(const char *filename, int isNew);
+
 
 #endif
