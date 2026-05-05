@@ -3,6 +3,7 @@
 #include <string.h>
 #include "zidan.h"
 
+
 void findAndReplace() {
     char filename[20];
     char find[100], replace[100];
