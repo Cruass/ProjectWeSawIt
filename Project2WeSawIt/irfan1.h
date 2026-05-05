@@ -1,9 +1,9 @@
-#ifndef irfan_h1
-#define irfan_h1
+#ifndef irfan1_h
+#define irfan1_h
+#include "edit_cursor.h"      // MAX_ROWS ada di sini
 
-// Deklarasi fungsi-fungsi editor
 void createNewFile();
 void exitEditor ();
-void handleTextEditing(int ch, char text[][256], int *cursorRow, int *cursorCol, int *rowCount);
+void handleTextEditing(int ch, char text[][MAX_COLS], int *cursorRow, int *cursorCol, int *rowCount);
 
 #endif
