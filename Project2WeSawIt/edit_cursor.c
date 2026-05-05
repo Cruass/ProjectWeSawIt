@@ -7,9 +7,6 @@
 #include "zidan.h"
 #include "irfan1.h"
 
-#define MAX_ROWS 100
-#define MAX_COLS 256
-
 static char text[MAX_ROWS][MAX_COLS];
 static int rowCount = 1;
 static int cursorRow = 0, cursorCol = 0;
@@ -39,15 +36,26 @@ static void saveFile(const char *filename) { //Fungsi dibuat oleh Irfan
     fclose(f);
 }
 
-// Merender tampilan
-static void render() { //Fungsi dibuat oleh zidan
-    system("cls");
+/static void render() { 
+
+    // pindahkan cursor ke pojok kiri atas (0,0)
+    COORD topLeft = {0, 0};
+    SetConsoleCursorPosition(hConsole, topLeft);
 
     for (int i = 0; i < rowCount; i++) {
         printf("%s", text[i]);
+
+        // hapus sisa karakter di baris
+        printf("\x1b[K");
+
         if (i < rowCount - 1) printf("\n");
     }
 
+    // kalau jumlah baris sekarang lebih sedikit dari sebelumnya,
+    // bersihkan sisa layar di bawah
+    printf("\x1b[J");
+
+    // kembalikan cursor ke posisi semula
     COORD pos = {cursorCol, cursorRow};
     SetConsoleCursorPosition(hConsole, pos);
 }
