@@ -36,7 +36,7 @@ static void saveFile(const char *filename) { //Fungsi dibuat oleh Irfan
     fclose(f);
 }
 
-/static void render() { 
+static void render() { 
 
     // pindahkan cursor ke pojok kiri atas (0,0)
     COORD topLeft = {0, 0};
