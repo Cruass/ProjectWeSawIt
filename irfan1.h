@@ -1,9 +1,14 @@
-#ifndef irfan1_h
-#define irfan1_h
-#include "edit_cursor.h"      // MAX_ROWS ada di sini
+#ifndef IRFAN1_H
+#define IRFAN1_H
 
-void createNewFile();
-void exitEditor ();
-void handleTextEditing(int ch, char text[][MAX_COLS], int *cursorRow, int *cursorCol, int *rowCount);
+#include "linkedlist.h"   // karena menggunakan Node *
+
+// Membuat file baru (dokumen kosong) dan menjalankan editor
+void createNewFile(void);
+
+// Keluar dari program
+void exitEditor(void);
+
+void handleTextEditing(int ch, Cursor *cursor);
 
 #endif

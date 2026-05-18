@@ -1,10 +1,9 @@
 #ifndef EDIT_CURSOR_H
 #define EDIT_CURSOR_H
 
-#define MAX_ROWS 100
-#define MAX_COLS 100
+#include "linkedlist.h"
 
-void runEditor(const char *filename, int isNew);
-
+void runEditor(const char *filename);
+void saveFile(Cursor *cursor, const char *filename);
 
 #endif
