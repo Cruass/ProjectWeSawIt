@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "edit_cursor.h"
 #include "zidan.h"
 
 void findAndReplace() {
@@ -81,40 +82,79 @@ void findAndReplace() {
     printf("Berhasil replace kata!\n");
 }
 
-void handleCursorMovement(int ch, int *cursorRow, int *cursorCol, int rowCount, char text[][256])
+void handleCursorMovement(int ch,Cursor *cur)
 {
-    if (ch == 72 && *cursorRow > 0) { // naik
-        (*cursorRow)--; 
-        int maxcol = (int)strlen(text[*cursorRow]);
-            if (*cursorCol > maxcol) {
-                *cursorCol = maxcol;
+    // ATAS
+    if (ch == 72) {
+
+        if (cur->current->prev != NULL) {
+
+            cur->current = cur->current->prev;
+
+            cur->cursorRow--;
+
+            int len = strlen(cur->current->data);
+
+            if (cur->cursorCol > len) {
+
+                cur->cursorCol = len;
             }
-        
-        
-    }
-    else if (ch == 80 && *cursorRow < rowCount - 1) { //TURUN
-        (*cursorRow)++; 
-        int maxcol = (int)strlen(text[*cursorRow]);
-            if (*cursorCol > maxcol) {
-                *cursorCol = maxcol;
-            }
-        
-        
-    }
-    else if (ch == 75 ) { // KIRI
-        if (*cursorCol > 0){
-            (*cursorCol)--;
-        }else if (*cursorCol == 0 && *cursorRow > 0) {
-            (*cursorRow)--;
-            *cursorCol = (int)strlen(text[*cursorRow]);
         }
     }
+
+    // BAWAH
+    else if (ch == 80) {
+
+        if (cur->current->next != NULL) {
+
+            cur->current = cur->current->next;
+
+            cur->cursorRow++;
+
+            int len = strlen(cur->current->data);
+
+            if (cur->cursorCol > len) {
+
+                cur->cursorCol = len;
+            }
+        }
+    }
+
+    // KIRI
+    else if (ch == 75) {
+
+        if (cur->cursorCol > 0) {
+
+            cur->cursorCol--;
+        }
+
+        else if (cur->current->prev != NULL) {
+
+            cur->current = cur->current->prev;
+
+            cur->cursorRow--;
+
+            cur->cursorCol = strlen(cur->current->data);
+        }
+    }
+
+    // KANAN
     else if (ch == 77) {
-        if (*cursorCol < (int)strlen(text[*cursorRow])) { // KANAN
-            (*cursorCol)++;
-        }else if (*cursorCol == (int)strlen(text[*cursorRow]) && *cursorRow < rowCount - 1) { 
-            (*cursorRow)++;
-            *cursorCol = 0;
+
+        int len = strlen(cur->current->data);
+
+        if (cur->cursorCol < len) {
+
+            cur->cursorCol++;
+        }
+
+        else if (cur->current->next != NULL) {
+
+            cur->current = cur->current->next;
+
+            cur->cursorRow++;
+
+            cur->cursorCol = 0;
         }
     }
 }
