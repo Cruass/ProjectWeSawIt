@@ -6,92 +6,70 @@
 #include "edit_cursor.h"
 #include "zidan.h"
 #include "irfan1.h"
+#include "linkedlist.h"
 
-static char text[MAX_ROWS][MAX_COLS];
-static int rowCount = 1;
-static int cursorRow = 0, cursorCol = 0;
+/* Handle konsol Windows untuk SetConsoleCursorPosition */
 static HANDLE hConsole;
 
-static void loadFile(const char *filename) { //Fungsi dibuat oleh Rayhan
+
+/* LOAD FILE KE LINKED LIST */
+static void loadFile(Cursor *cursor, const char *filename) { // Fungsi dibuat oleh Rayhan
     FILE *f = fopen(filename, "r");
     if (!f) return;
-    rowCount = 0;
-    while (rowCount < MAX_ROWS && fgets(text[rowCount], MAX_COLS, f)) {
-        text[rowCount][strcspn(text[rowCount], "\n")] = '\0';
-        rowCount++;
+
+    char buffer[MAX_COLS];
+    while (fgets(buffer, MAX_COLS, f)) {
+        buffer[strcspn(buffer, "\n")] = '\0';
+        appendNode(cursor, buffer);
     }
     fclose(f);
-    if (rowCount == 0) rowCount = 1;
+
+    // Jika file kosong, tambah satu baris kosong
+    if (cursor->rowCount == 0) appendNode(cursor, "");
 }
 
-// Simpan file
-static void saveFile(const char *filename) { //Fungsi dibuat oleh Irfan
-    FILE *f = fopen(filename, "w");
-    if (!f) return;
+/* Simpan file */
 
-    for (int i = 0; i < rowCount; i++) {
-        fprintf(f, "%s", text[i]);
-        if (i < rowCount - 1) fprintf(f, "\n");
-    }
-    fclose(f);
-}
 
-static void render() { 
 
-    // pindahkan cursor ke pojok kiri atas (0,0)
-    COORD topLeft = {0, 0};
-    SetConsoleCursorPosition(hConsole, topLeft);
 
-    for (int i = 0; i < rowCount; i++) {
-        printf("%s", text[i]);
 
-        // hapus sisa karakter di baris
-        printf("\x1b[K");
 
-        if (i < rowCount - 1) printf("\n");
-    }
+/* Render layar */
 
-    // kalau jumlah baris sekarang lebih sedikit dari sebelumnya,
-    // bersihkan sisa layar di bawah
-    printf("\x1b[J");
 
-    // kembalikan cursor ke posisi semula
-    COORD pos = {cursorCol, cursorRow};
-    SetConsoleCursorPosition(hConsole, pos);
-}
 
-// Fungsi utama editor
-void runEditor(const char *filename, int isNew) { //Fungsi dibuat oleh Rayhan
+
+/* Run editor */
+void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
-    
-    // Inisialisasi buffer
-    if (!isNew) {
-        loadFile(filename);
-    } else {
-        // file baru: kosongkan semua baris
-        for (int i = 0; i < MAX_ROWS; i++) text[i][0] = '\0';
-        rowCount = 1;
-    }
-    cursorRow = 0;
-    cursorCol = 0;
-    
+
+    // Inisialisasi cursor
+    Cursor cursor = {NULL, NULL, 0, 0, 0};
+
+    // Load file ke linked list
+    loadFile(&cursor, filename);
+
+    cursor.cursorRow = 0;
+    cursor.cursorCol = 0;
+
     int ch;
     while (1) {
-        render();
+        render(&cursor);
         ch = _getch();
-        
+
         if (ch == 27) { // ESC untuk keluar dan simpan, dibuat oleh Rayhan
-            saveFile(filename);
+            saveFile(&cursor, filename);
             break;
         }
 
         if (ch == 224) { // Memanggil fungsi cursor movement dari zidan.c
             ch = _getch();
-            handleCursorMovement(ch, &cursorRow, &cursorCol, rowCount, text);
-        }
-
-        else {
-            handleTextEditing(ch, text, &cursorRow, &cursorCol, &rowCount); //Memanggil fungsi handleTextEditing dari irfan1.c
+            handleCursorMovement(ch, &cursor);
+        } else {
+            handleTextEditing(ch, &cursor); // Memanggil fungsi handleTextEditing dari irfan1.c
         }
     }
+
+    freeList(&cursor);
 }
