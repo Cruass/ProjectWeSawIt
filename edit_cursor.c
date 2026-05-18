@@ -29,11 +29,18 @@ static void loadFile(Cursor *cursor, const char *filename) { // Fungsi dibuat ol
 }
 
 /* Simpan file */
+void saveFile(Cursor *cursor, const char *filename) { // Fungsi dibuat oleh Irfan
+    FILE *f = fopen(filename, "w");
+    if (!f) return;
 
-
-
-
-
+    Node *cur = cursor->head;
+    while (cur != NULL) {
+        fprintf(f, "%s", cur->data);
+        if (cur->next != NULL) fprintf(f, "\n");
+        cur = cur->next;
+    }
+    fclose(f);
+}
 
 /* Render layar */
 
