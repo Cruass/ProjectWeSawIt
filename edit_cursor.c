@@ -43,7 +43,27 @@ void saveFile(Cursor *cursor, const char *filename) { // Fungsi dibuat oleh Irfa
 }
 
 /* Render layar */
+static void render(Cursor *cursor) {
+    /* 1. Pindah ke pojok kiri atas */
+    COORD topLeft = {0, 0};
+    SetConsoleCursorPosition(hConsole, topLeft);
 
+    /* 2. Traversal linked list: cetak setiap baris */
+    Node *cur = cursor->head;
+    while (cur != NULL) {
+        printf("%s", cur->data);
+        printf("\x1b[K");           /* hapus sisa baris di layar */
+        if (cur->next != NULL) printf("\n");
+        cur = cur->next;
+    }
+
+    /* 3. Hapus sisa layar di bawah baris terakhir */
+    printf("\x1b[J");
+
+    /* 4. Kembalikan cursor konsol ke posisi kursor editor */
+    COORD pos = {(SHORT)cursor->cursorCol, (SHORT)cursor->cursorRow};
+    SetConsoleCursorPosition(hConsole, pos);
+}
 
 
 
