@@ -108,13 +108,6 @@ void handleTextEditing(int ch, Cursor *cursor)
 
             int space = MAX_COLS - 1 - strlen(prev->data); // ruang tersisa
 
-            if (space == 0) {
-                // Hapus satu karakter terakhir dari prev
-                int prevLen = strlen(prev->data);
-                prev->data[prevLen - 1] = '\0';   // buang karakter terakhir
-                space = 1;                        // sekarang ada 1 slot kosong
-            }
-
             if (space > 0) {
                 // 1. Tempelkan maksimal 'space' karakter dari curr ke prev
                 strncat(prev->data, curr->data, space);
