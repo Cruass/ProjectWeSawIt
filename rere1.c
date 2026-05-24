@@ -23,7 +23,7 @@ void tampilkanNode(Cursor *cursor) {
     Node *curr = cursor->head;
     int no = 1;
     while (curr != NULL) {
-        printf("%3d. %s\n", curr->data);
+        printf("%3d. %s\n", no++, curr->data);
         curr = curr->next;
     }
 }
