@@ -20,6 +20,11 @@ void tampilkanNode(Cursor *cursor) {
         printf("(Kosong)\n");
         return;
     }
+    Node *curr = cursor->head;
+    while (curr != NULL) {
+        printf("%s\n", curr->data);  
+        curr = curr->next;
+    }
 }
 
 // SIMPAN KE FILE
