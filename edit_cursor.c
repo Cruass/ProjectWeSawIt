@@ -42,27 +42,53 @@ void saveFile(Cursor *cursor, const char *filename) { // Fungsi dibuat oleh Irfa
     fclose(f);
 }
 
-/* Render layar */
-static void render(Cursor *cursor) {
-    /* 1. Pindah ke pojok kiri atas */
-    COORD topLeft = {0, 0};
-    SetConsoleCursorPosition(hConsole, topLeft);
+static void gotoxy(int x, int y) {
+    COORD coord = {(SHORT)x, (SHORT)y};
+    SetConsoleCursorPosition(hConsole, coord);
+}
 
-    /* 2. Traversal linked list: cetak setiap baris */
+static void render(Cursor *cursor) {
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(hConsole, &csbi);
+    int screenWidth  = csbi.dwSize.X;
+    int screenHeight = csbi.dwSize.Y - 1; 
+
+    // Update scrollOffset agar kursor tetap dalam pandangan
+    static int scrollOffset = 0;
+    if (cursor->cursorRow < scrollOffset) scrollOffset = cursor->cursorRow;
+    if (cursor->cursorRow >= scrollOffset + screenHeight) 
+        scrollOffset = cursor->cursorRow - screenHeight + 1;
+
+    // Arahkan ke node awal berdasarkan offset
     Node *cur = cursor->head;
-    while (cur != NULL) {
+    for (int i = 0; cur != NULL && i < scrollOffset; i++) cur = cur->next;
+
+    // Render baris ke layar
+    int row = 0;
+    while (cur != NULL && row < screenHeight) {
+        gotoxy(0, row);
         printf("%s", cur->data);
-        printf("\x1b[K");           /* hapus sisa baris di layar */
-        if (cur->next != NULL) printf("\n");
+
+        int textLen = (int)strlen(cur->data);
+        int sisa    = screenWidth - textLen;
+
+        // Bersihkan sisa karakter di ujung kanan
+        if (sisa > 0) {
+            DWORD written;
+            FillConsoleOutputCharacter(hConsole, ' ', sisa, (COORD){(SHORT)textLen, (SHORT)row}, &written);
+        }
         cur = cur->next;
+        row++;
     }
 
-    /* 3. Hapus sisa layar di bawah baris terakhir */
-    printf("\x1b[J");
+    // Bersihkan baris di bawah konten (area kosong)
+    for (int r = row; r < screenHeight; r++) {
+        DWORD written;
+        FillConsoleOutputCharacter(hConsole, ' ', screenWidth, (COORD){0, (SHORT)r}, &written);
+    }
 
-    /* 4. Kembalikan cursor konsol ke posisi kursor editor */
-    COORD pos = {(SHORT)cursor->cursorCol, (SHORT)cursor->cursorRow};
-    SetConsoleCursorPosition(hConsole, pos);
+    // Set kursor ke posisi visual
+    gotoxy(cursor->cursorCol, cursor->cursorRow - scrollOffset);
 }
 
 
