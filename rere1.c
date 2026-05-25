@@ -88,28 +88,26 @@ void openFile() {
     }
 }
 
-// =========================
 // DELETE FILE
-// =========================
-// void deletefile() {
-//     char filename[100];
-//     char confirm;
+void deletefile() {
+    char filename[100];
+    char confirm;
 
-//     printf("\n\033[1;31m=== HAPUS FILE ===\033[0m\n");
-//     printf("Masukkan nama file yang akan dihapus: ");
-//     fgets(filename, sizeof(filename), stdin);
-//     filename[strcspn(filename, "\n")] = '\0';
+    printf("\n\033[1;31m=== HAPUS FILE ===\033[0m\n");
+    printf("Masukkan nama file yang akan dihapus: ");
+    fgets(filename, sizeof(filename), stdin);
+    filename[strcspn(filename, "\n")] = '\0';
 
-//     printf("Apakah Anda yakin ingin menghapus '%s'? (y/n): ", filename);
-//     scanf(" %c", &confirm);
-//     getchar();
+    printf("Apakah Anda yakin ingin menghapus '%s'? (y/n): ", filename);
+    scanf(" %c", &confirm);
+    getchar();
 
-//     if (confirm == 'y' || confirm == 'Y') {
-//         if (remove(filename) == 0) {
-//             printf("\033[1;32mFile '%s' berhasil dihapus.\033[0m\n", filename);
-//         } else {
-//             printf("\033[1;31mGagal menghapus file '%s'. Pastikan file ada.\033[0m\n", filename);
-//         }
-//     } else {
-//         printf("Penghapusan dibatalkan.\n");
-//     }
+    if (confirm == 'y' || confirm == 'Y') {
+        if (remove(filename) == 0) {
+            printf("\033[1;32mFile '%s' berhasil dihapus.\033[0m\n", filename);
+        } else {
+            printf("\033[1;31mGagal menghapus file '%s'. Pastikan file ada.\033[0m\n", filename);
+        }
+    } else {
+        printf("Penghapusan dibatalkan.\n");
+    }
