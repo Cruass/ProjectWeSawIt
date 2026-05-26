@@ -217,3 +217,17 @@ void handleCursorMovement(int ch,Cursor *cur)
         }
     }
 }
+
+void handleSelection(int ch, Cursor *cur) {
+        
+    if (cur->selAktif == 0) {
+        cur->selAktif = 1;
+         cur->selMulaiBaris = cur->cursorRow;
+         cur->selMulaiKolom = cur->cursorCol;
+        }    
+
+    handleCursorMovement(ch, cur);
+
+    cur ->selAkhirBaris = cur->cursorRow;
+    cur ->selAkhirKolom = cur->cursorCol;
+}

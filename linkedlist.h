@@ -15,6 +15,12 @@ typedef struct {
     int cursorRow;
     int cursorCol;
     int rowCount;
+
+    int selAktif;
+    int selMulaiBaris;
+    int selMulaiKolom;
+    int selAkhirBaris;
+    int selAkhirKolom;
 } Cursor;
 
 Node *createNode(const char text[]);

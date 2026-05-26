@@ -42,12 +42,43 @@ void saveFile(Cursor *cursor, const char *filename) { // Fungsi dibuat oleh Irfa
     fclose(f);
 }
 
-static void gotoxy(int x, int y) {
+void gotoxy(int x, int y) {
     COORD coord = {(SHORT)x, (SHORT)y};
     SetConsoleCursorPosition(hConsole, coord);
 }
 
-static void render(Cursor *cursor) {
+int cekPosisiBlok(Cursor *cur, int baris, int kolom) {
+    if (cur->selAktif == 0) return 0; // Tidak ada blok aktif
+
+    int barisAwal = cur->selMulaiBaris;
+    int kolomAwal = cur->selMulaiKolom;
+    int barisAkhir = cur->selAkhirBaris;
+    int kolomAkhir = cur->selAkhirKolom;
+
+    if (barisAwal > barisAkhir) {
+        int temp;
+        temp = barisAwal;
+        barisAwal = barisAkhir;
+        barisAkhir = temp;
+
+        temp = kolomAwal;
+        kolomAwal = kolomAkhir;
+        kolomAkhir = temp;
+    }
+    else if (barisAwal == barisAkhir && kolomAwal > kolomAkhir) {
+        int temp = kolomAwal;
+        kolomAwal = kolomAkhir;
+        kolomAkhir = temp;
+    }
+
+    if (baris < barisAwal || baris > barisAkhir) return 0;
+    if (baris == barisAwal && kolom < kolomAwal) return 0;
+    if (baris == barisAkhir && kolom >= kolomAkhir) return 0;
+
+    return 1; // Posisi berada dalam blok
+}
+
+void render(Cursor *cursor) {
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(hConsole, &csbi);
     int screenWidth  = csbi.dwSize.X;
