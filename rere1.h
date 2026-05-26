@@ -12,7 +12,7 @@ void simpanKeFile(Cursor *cursor, const char *filename);
 
 // Menu utama
 void openFile();
-// void deletefile();
+void deletefile();
 
 // Editor linked list
 void editLinkedList(Cursor *cursor, const char *filename);

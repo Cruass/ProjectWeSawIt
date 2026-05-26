@@ -111,3 +111,4 @@ void deletefile() {
     } else {
         printf("Penghapusan dibatalkan.\n");
     }
+}
