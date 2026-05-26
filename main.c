@@ -19,7 +19,7 @@
             printf(" \033[1;32m1. Create New File\033[1;34m                      \n");
             printf(" \033[1;32m2. Open File (with Edit Option)\033[1;34m         \n");
             printf(" \033[1;32m3. Find and Replace\033[1;34m                     \n");
-            printf(" \033[1;31m4. Delete File\033[1;34m                          \n");
+            printf(" \033[1;32m4. Delete File\033[1;34m                          \n");
             printf(" \033[1;31m5. Exit Editor\033[1;34m                          \n");
             printf("\033[1;37mMasukkan pilihan: \033[0m");
 
