@@ -7,7 +7,7 @@
 
 // HELPER: INSERT NODE DI TENGAH
 
-static void insertNodeAt(Cursor *cursor, int index, const char line[]) {
+void insertNodeAt(Cursor *cursor, int index, const char line[]) {
     Node *newNode = createNode(line);
     if (newNode == NULL) return;
 
@@ -35,7 +35,7 @@ static void insertNodeAt(Cursor *cursor, int index, const char line[]) {
 }
 
 // HELPER: HAPUS NODE DI TENGAH
-static void deleteNodeAt(Cursor *cursor, int index) {
+void deleteNodeAt(Cursor *cursor, int index) {
     if (cursor->head == NULL) return;
 
     Node *target = cursor->head;
