@@ -19,22 +19,18 @@ int isStackFull(UndoStack *s) {
 // Push: simpan DataUndo ke puncak stack
 void pushDataUndo(UndoStack *s, DataUndo d) {
     if (isStackFull(s)) {
-        // Stack penuh → geser semua ke bawah (buang yang paling lama)
         for (int i = 0; i < MAX_UNDO - 1; i++) {
-            s->data[i] = s->data[i + 1];
+            s->states[i] = s->states[i + 1];  
         }
-        // top tetap di MAX_UNDO-1, tinggal overwrite
-        s->data[s->top] = d;
+        s->states[s->top] = d;                 
     } else {
         s->top++;
-        s->data[s->top] = d;
+        s->states[s->top] = d;                 
     }
 }
 
-// Pop: ambil DataUndo dari puncak stack
 DataUndo popDataUndo(UndoStack *s) {
-    // Pastikan stack tidak kosong sebelum pop
-    DataUndo d = s->data[s->top];
+    DataUndo d = s->states[s->top];           
     s->top--;
     return d;
 }
@@ -74,7 +70,42 @@ void applyDataUndo(Cursor *cursor, DataUndo d) {
     Node *curr = cursor->head;
     for (int i = 0; i < d.cursorRow && curr != NULL; i++) {
         curr = curr->next;
-    }
+    } 
     cursor->current = curr;
 }
 
+//Dipanggil SEBELUM setiap perubahan teks
+// Menyiapkan kondisi saat ini ke undo stack dan mengosongkan redo stack
+void saveUndoState(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor) {
+    DataUndo d = captureDataUndo(cursor);
+    pushDataUndo(undoStack, d);
+    //Setiap ada aksi baru, redo stack harus dikosongkan karena percabangan history tidak didukung
+    initStack(redoStack);
+}
+
+//Ctrl+Z: terapkan undo
+void doUndo(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor) {
+    if(isStackEmpty(undoStack)) {
+        return;
+    }
+    //Simpan kondisi sekarang ke re stack sebelum undo
+    DataUndo current = captureDataUndo(cursor);
+    pushDataUndo(redoStack, current);
+
+    DataUndo prev = popDataUndo(undoStack);
+    applyDataUndo(cursor, prev);
+} 
+
+//Ctrl+Y: terapkan redo
+void doRedo(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor) {
+    if(isStackEmpty(redoStack)) {
+        return;
+    }
+    //Simpan kondisi sekarang ke undo stack dulu
+    DataUndo current = captureDataUndo(cursor);
+    pushDataUndo(undoStack, current);
+    
+    //Ammbil state redo dari redo stack
+    DataUndo next = popDataUndo(redoStack);
+    applyDataUndo(cursor, next);
+}
