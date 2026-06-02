@@ -7,7 +7,7 @@
 
 // HELPER: INSERT NODE DI TENGAH
 
-static void insertNodeAt(Cursor *cursor, int index, const char line[]) {
+void insertNodeAt(Cursor *cursor, int index, const char line[]) {
     Node *newNode = createNode(line);
     if (newNode == NULL) return;
 
@@ -35,7 +35,7 @@ static void insertNodeAt(Cursor *cursor, int index, const char line[]) {
 }
 
 // HELPER: HAPUS NODE DI TENGAH
-static void deleteNodeAt(Cursor *cursor, int index) {
+void deleteNodeAt(Cursor *cursor, int index) {
     if (cursor->head == NULL) return;
 
     Node *target = cursor->head;
@@ -57,7 +57,7 @@ static void deleteNodeAt(Cursor *cursor, int index) {
 
 // CREATE NEW FILE
 void createNewFile(void) {
-    char filename[100];
+    char filename[50];
 
     printf("Masukkan Nama File : ");
     fgets(filename, sizeof(filename), stdin);
@@ -78,7 +78,8 @@ void exitEditor(void) {
 }
 
 // HANDLE TEXT EDITING
-void handleTextEditing(int ch, Cursor *cursor) {
+void handleTextEditing(int ch, Cursor *cursor) 
+{
     Node *curr = cursor->current;
     if (curr == NULL) return;
 
@@ -97,13 +98,36 @@ void handleTextEditing(int ch, Cursor *cursor) {
             Node *prev = curr->prev;
             if (prev == NULL) return;
 
-            if (strlen(prev->data) + strlen(curr->data) < MAX_COLS) {
-                int prevLen = strlen(prev->data);
-                strcat(prev->data, curr->data);
+            if (curr->data[0] == '\0') {              // Jika baris saat ini kosong
                 deleteNodeAt(cursor, cursor->cursorRow);
                 cursor->cursorRow--;
                 cursor->current = prev;
-                cursor->cursorCol = prevLen;
+                cursor->cursorCol = strlen(prev->data);
+                return;                               // Keluar, tidak perlu gabung teks
+                }  
+
+            int space = MAX_COLS - 1 - strlen(prev->data); // ruang tersisa
+
+            if (space > 0) {
+                // 1. Tempelkan maksimal 'space' karakter dari curr ke prev
+                strncat(prev->data, curr->data, space);
+                prev->data[MAX_COLS - 1] = '\0';   // pastikan null-terminator (jika strncat mentok)
+
+                // 2. Tentukan berapa karakter yang benar-benar dipindahkan
+                int take = (strlen(curr->data) < space) ? strlen(curr->data) : space;
+
+                // 3. Geser sisa teks di curr ke kiri (menghapus 'take' karakter pertama)
+                memmove(curr->data, curr->data + take, strlen(curr->data) - take + 1);
+
+                // 4. Jika curr sekarang kosong, hapus node-nya; jika tidak, kursor di awal sisa
+                if (curr->data[0] == '\0') {
+                    deleteNodeAt(cursor, cursor->cursorRow);
+                    cursor->cursorRow--;
+                    cursor->current = prev;
+                    cursor->cursorCol = strlen(prev->data); // kursor di akhir teks gabungan
+                } else {
+                    cursor->cursorCol = 0; // kursor di awal sisa teks di baris kedua
+                }
             }
         }
     }
