@@ -79,46 +79,70 @@ int cekPosisiBlok(Cursor *cur, int baris, int kolom) {
 }
 
 void render(Cursor *cursor) {
-    CONSOLE_SCREEN_BUFFER_INFO csbi;
-    GetConsoleScreenBufferInfo(hConsole, &csbi);
-    int screenWidth  = csbi.dwSize.X;
-    int screenHeight = csbi.dwSize.Y - 1; 
+    CONSOLE_SCREEN_BUFFER_INFO infoLayar;
+    GetConsoleScreenBufferInfo(hConsole, &infoLayar);
+    int lebarLayar  = infoLayar.dwSize.X;
+    int tinggiLayar = infoLayar.dwSize.Y - 1; 
 
     // Update scrollOffset agar kursor tetap dalam pandangan
     static int scrollOffset = 0;
     if (cursor->cursorRow < scrollOffset) scrollOffset = cursor->cursorRow;
-    if (cursor->cursorRow >= scrollOffset + screenHeight) 
-        scrollOffset = cursor->cursorRow - screenHeight + 1;
+    if (cursor->cursorRow >= scrollOffset + tinggiLayar) 
+        scrollOffset = cursor->cursorRow - tinggiLayar + 1;
 
     // Arahkan ke node awal berdasarkan offset
     Node *cur = cursor->head;
-    for (int i = 0; cur != NULL && i < scrollOffset; i++) cur = cur->next;
+    int i = 0;
+    while (cur != NULL && i < scrollOffset) {
+        cur = cur->next;
+        i++;
+    }
 
     // Render baris ke layar
     int row = 0;
-    while (cur != NULL && row < screenHeight) {
+    while (cur != NULL && row < tinggiLayar) {
         gotoxy(0, row);
-        printf("%s", cur->data);
 
-        int textLen = (int)strlen(cur->data);
-        int sisa    = screenWidth - textLen;
+        int barisDokumen = scrollOffset + row;
+        int panjang = strlen(cur->data);
+
+        int kolom = 0;
+        while(kolom < panjang) {
+            if (cekPosisiBlok(cursor, barisDokumen, kolom)) {
+                SetConsoleTextAttribute(hConsole, BACKGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+            }
+            else {
+                SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+            }
+            putchar(cur->data[kolom]);
+            kolom++;
+            
+        } 
+
+        SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+
+
+        int sisaKanan = lebarLayar - panjang;
 
         // Bersihkan sisa karakter di ujung kanan
-        if (sisa > 0) {
-            DWORD written;
-            FillConsoleOutputCharacter(hConsole, ' ', sisa, (COORD){(SHORT)textLen, (SHORT)row}, &written);
+        if (sisaKanan> 0) {
+            DWORD jumlahDitulis;
+            FillConsoleOutputCharacter(hConsole, ' ', sisaKanan, (COORD){(SHORT)panjang, (SHORT)row}, &jumlahDitulis);
         }
         cur = cur->next;
         row++;
     }
 
     // Bersihkan baris di bawah konten (area kosong)
-    for (int r = row; r < screenHeight; r++) {
-        DWORD written;
-        FillConsoleOutputCharacter(hConsole, ' ', screenWidth, (COORD){0, (SHORT)r}, &written);
+    int barisSisa = row;
+    while (barisSisa < tinggiLayar) {
+        DWORD jumlahDitulis;
+        FillConsoleOutputCharacter(hConsole, ' ', lebarLayar,
+            (COORD){0, (SHORT)barisSisa}, &jumlahDitulis);
+        barisSisa++;
     }
 
-    // Set kursor ke posisi visual
+    // Taruh kursor di posisi yang benar
     gotoxy(cursor->cursorCol, cursor->cursorRow - scrollOffset);
 }
 
@@ -129,7 +153,7 @@ void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     // Inisialisasi cursor
-    Cursor cursor = {NULL, NULL, 0, 0, 0};
+    Cursor cursor = {NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0};
 
     // Load file ke linked list
     loadFile(&cursor, filename);
@@ -149,8 +173,15 @@ void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
 
         if (ch == 224) { // Memanggil fungsi cursor movement dari zidan.c
             ch = _getch();
-            handleCursorMovement(ch, &cursor);
+
+            if (GetKeyState(VK_SHIFT) & 0x8000) {
+                handleSelection(ch, &cursor); // Handle selection jika Shift ditekan
+            } else {
+                cursor.selAktif = 0; // Nonaktifkan blok jika Shift tidak ditekan
+                handleCursorMovement(ch, &cursor); // Handle cursor movement jika Shift tidak ditekan
+            }
         } else {
+            cursor.selAktif = 0; // Nonaktifkan blok jika tombol lain ditekan
             handleTextEditing(ch, &cursor); // Memanggil fungsi handleTextEditing dari irfan1.c
         }
     }

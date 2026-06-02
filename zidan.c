@@ -231,3 +231,4 @@ void handleSelection(int ch, Cursor *cur) {
     cur ->selAkhirBaris = cur->cursorRow;
     cur ->selAkhirKolom = cur->cursorCol;
 }
+
