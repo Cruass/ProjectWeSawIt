@@ -5,6 +5,8 @@
 #include "edit_cursor.h"
 #include "linkedlist.h"
 
+
+
 // HELPER: INSERT NODE DI TENGAH
 
 void insertNodeAt(Cursor *cursor, int index, const char line[]) {
@@ -63,7 +65,7 @@ void createNewFile(void) {
     fgets(filename, sizeof(filename), stdin);
     filename[strcspn(filename, "\n")] = '\0';
 
-    // Buat file kosong dulu agar bisa dibuka oleh runEditor
+
     FILE *f = fopen(filename, "w");
     if (f) fclose(f);
 

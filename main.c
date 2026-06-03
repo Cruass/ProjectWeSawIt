@@ -23,7 +23,9 @@
             printf(" \033[1;31m5. Exit Editor\033[1;34m                          \n");
             printf("\033[1;37mMasukkan pilihan: \033[0m");
 
-            scanf("%d", &choice);
+            if (scanf("%d", &choice) != 1) {
+            choice = 0;
+        }
             while (getchar() != '\n'); // bersihin buffer
 
             switch(choice) {
@@ -56,7 +58,7 @@
                 getchar();
             }
 
-        } while(choice != 4);
+        } while(choice != 5);
 
         return 0;
     }

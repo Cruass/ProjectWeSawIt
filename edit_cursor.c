@@ -173,6 +173,7 @@ void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
     initStack(&undoStack);
     initStack(&redoStack);
 
+
     int ch;
     while (1) {
         render(&cursor);
