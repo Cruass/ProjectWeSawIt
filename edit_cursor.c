@@ -7,6 +7,7 @@
 #include "zidan.h"
 #include "irfan1.h"
 #include "linkedlist.h"
+#include "copy_paste.h"
 
 /* Handle konsol Windows untuk SetConsoleCursorPosition */
 static HANDLE hConsole;
@@ -152,6 +153,9 @@ void render(Cursor *cursor) {
 void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
+    HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+    SetConsoleMode(hInput, 0);
+
     // Inisialisasi cursor
     Cursor cursor = {NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0};
 
@@ -181,8 +185,16 @@ void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
                 handleCursorMovement(ch, &cursor); // Handle cursor movement jika Shift tidak ditekan
             }
         } else {
+            if (ch == 3) { // CTRL+C untuk copy, dibuat oleh Rayhan
+                copySelection(&cursor);
+            } else if (ch == 16) { // CTRL+P untuk paste, dibuat oleh Rayhan
+                pasteClipboard(&cursor);
+            } else {
+
             cursor.selAktif = 0; // Nonaktifkan blok jika tombol lain ditekan
             handleTextEditing(ch, &cursor); // Memanggil fungsi handleTextEditing dari irfan1.c
+
+            }
         }
     }
 
