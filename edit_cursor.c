@@ -99,11 +99,11 @@ void render(Cursor *cursor) {
     }
 
     // Render baris ke layar
-    int row = 0;
-    while (cur != NULL && row < tinggiLayar) {
-        gotoxy(0, row);
+    int baris = 0;
+    while (cur != NULL && baris < tinggiLayar) {
+        gotoxy(0, baris);
 
-        int barisDokumen = scrollOffset + row;
+        int barisDokumen = scrollOffset + baris;
         int panjang = strlen(cur->data);
 
         int kolom = 0;
@@ -127,14 +127,14 @@ void render(Cursor *cursor) {
         // Bersihkan sisa karakter di ujung kanan
         if (sisaKanan> 0) {
             DWORD jumlahDitulis;
-            FillConsoleOutputCharacter(hConsole, ' ', sisaKanan, (COORD){(SHORT)panjang, (SHORT)row}, &jumlahDitulis);
+            FillConsoleOutputCharacter(hConsole, ' ', sisaKanan, (COORD){(SHORT)panjang, (SHORT)baris}, &jumlahDitulis);
         }
         cur = cur->next;
-        row++;
+        baris++;
     }
 
     // Bersihkan baris di bawah konten (area kosong)
-    int barisSisa = row;
+    int barisSisa = baris;
     while (barisSisa < tinggiLayar) {
         DWORD jumlahDitulis;
         FillConsoleOutputCharacter(hConsole, ' ', lebarLayar,
