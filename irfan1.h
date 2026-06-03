@@ -8,7 +8,7 @@ void createNewFile(void);
 
 // Keluar dari program
 void exitEditor(void);
-
+void insertNodeAt(Cursor *cursor, int index, const char line[]);
 void handleTextEditing(int ch, Cursor *cursor);
 
 #endif
