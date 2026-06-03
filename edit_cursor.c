@@ -8,15 +8,20 @@
 #include "irfan1.h"
 #include "linkedlist.h"
 #include "copy_paste.h"
+#include "undo_redo.h"
 
 /* Handle konsol Windows untuk SetConsoleCursorPosition */
 static HANDLE hConsole;
 
 
 /* LOAD FILE KE LINKED LIST */
-static void loadFile(Cursor *cursor, const char *filename) { // Fungsi dibuat oleh Rayhan
+static void loadFile(Cursor *cursor, const char *filename) {
     FILE *f = fopen(filename, "r");
-    if (!f) return;
+    if (!f) {
+        // Jika file tidak ada, buat satu baris kosong agar editor tetap hidup
+        appendNode(cursor, "");
+        return;
+    }
 
     char buffer[MAX_COLS];
     while (fgets(buffer, MAX_COLS, f)) {
@@ -122,11 +127,10 @@ void render(Cursor *cursor) {
 
         SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
-
         int sisaKanan = lebarLayar - panjang;
 
         // Bersihkan sisa karakter di ujung kanan
-        if (sisaKanan> 0) {
+        if (sisaKanan > 0) {
             DWORD jumlahDitulis;
             FillConsoleOutputCharacter(hConsole, ' ', sisaKanan, (COORD){(SHORT)panjang, (SHORT)baris}, &jumlahDitulis);
         }
@@ -148,7 +152,6 @@ void render(Cursor *cursor) {
 }
 
 
-
 /* Run editor */
 void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -164,6 +167,11 @@ void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
 
     cursor.cursorRow = 0;
     cursor.cursorCol = 0;
+
+    // Inisialisasi undo/redo stack
+    UndoStack undoStack, redoStack;
+    initStack(&undoStack);
+    initStack(&redoStack);
 
     int ch;
     while (1) {
@@ -184,19 +192,25 @@ void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
                 cursor.selAktif = 0; // Nonaktifkan blok jika Shift tidak ditekan
                 handleCursorMovement(ch, &cursor); // Handle cursor movement jika Shift tidak ditekan
             }
+        } else if (ch == 26) { // CTRL+Z untuk undo
+            doUndo(&undoStack, &redoStack, &cursor);
+        } else if (ch == 25) { // CTRL+Y untuk redo
+            doRedo(&undoStack, &redoStack, &cursor);
         } else {
             if (ch == 3) { // CTRL+C untuk copy, dibuat oleh Rayhan
                 copySelection(&cursor);
             } else if (ch == 16) { // CTRL+P untuk paste, dibuat oleh Rayhan
+                // Simpan state sebelum paste
+                saveUndoState(&undoStack, &redoStack, &cursor);
                 pasteClipboard(&cursor);
             } else {
-
-            cursor.selAktif = 0; // Nonaktifkan blok jika tombol lain ditekan
-            handleTextEditing(ch, &cursor); // Memanggil fungsi handleTextEditing dari irfan1.c
-
+                cursor.selAktif = 0; // Nonaktifkan blok jika tombol lain ditekan
+                // Simpan state sebelum mengedit
+                saveUndoState(&undoStack, &redoStack, &cursor);
+                handleTextEditing(ch, &cursor); // Memanggil fungsi handleTextEditing dari irfan1.c
             }
         }
     }
 
     freeList(&cursor);
-}
+}   

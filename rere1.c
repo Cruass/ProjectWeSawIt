@@ -83,8 +83,8 @@ void openFile() {
         runEditor(filename);
         printf("\033[1;32mFile '%s' telah disimpan.\033[0m\n", filename);
     } else {
-        printf("File tidak diedit.\n");
         freeList(&cursor);
+        printf("File tidak diedit.\n");
     }
 }
 
