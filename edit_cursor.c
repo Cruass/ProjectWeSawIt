@@ -15,9 +15,13 @@ static HANDLE hConsole;
 
 
 /* LOAD FILE KE LINKED LIST */
-static void loadFile(Cursor *cursor, const char *filename) { // Fungsi dibuat oleh Rayhan
+static void loadFile(Cursor *cursor, const char *filename) {
     FILE *f = fopen(filename, "r");
-    if (!f) return;
+    if (!f) {
+        // Jika file tidak ada, buat satu baris kosong agar editor tetap hidup
+        appendNode(cursor, "");
+        return;
+    }
 
     char buffer[MAX_COLS];
     while (fgets(buffer, MAX_COLS, f)) {
