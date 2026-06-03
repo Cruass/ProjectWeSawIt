@@ -45,12 +45,38 @@ void pasteClipboard(Cursor *cursor) {
     if (!clipboard[0] || !cursor->current) return;
 
     Node *curr = cursor->current;
+
+    // Langkah 1: Simpan posisi kolom awal sebelum paste
+    int kolomAwal = cursor->cursorCol;
+
+    // Langkah 2: Ambil teks kanan kursor, lalu potong baris sekarang di posisi kursor
     char kanan[MAX_COLS];
     strcpy(kanan, curr->data + cursor->cursorCol);
     curr->data[cursor->cursorCol] = '\0';
 
-    char *p = clipboard;
-    char *end = clipboard + strlen(clipboard);
+    // Langkah 3: Simpan panjang clipboard sebelum digabung
+    int panjangClipboard = strlen(clipboard);
+
+    // Langkah 4: Gabungkan clipboard + kanan jadi satu string
+    char gabungan[MAX_COLS * 20] = "";
+    strcat(gabungan, clipboard);
+    strcat(gabungan, kanan);
+
+    // Langkah 5: Hitung di baris dan kolom mana kursor harus berhenti
+    int barisAkhirPaste = 0;
+    int kolomAkhirPaste = 0;
+    for (int i = 0; i < panjangClipboard; i++) {
+        if (gabungan[i] == '\n') {
+            barisAkhirPaste++;
+            kolomAkhirPaste = 0;
+        } else {
+            kolomAkhirPaste++;
+        }
+    }
+
+    // Langkah 6: Proses gabungan per baris (dipisah oleh \n)
+    char *p = gabungan;
+    char *end = gabungan + strlen(gabungan);
     int baris = 0;
 
     while (p <= end) {
@@ -58,27 +84,58 @@ void pasteClipboard(Cursor *cursor) {
         int panjang = nl ? (int)(nl - p) : (int)(end - p);
 
         if (baris == 0) {
-            strncat(curr->data, p, panjang);
-            cursor->cursorCol += panjang;
+            // Baris pertama → tempel ke baris sekarang
+            int sisa = MAX_COLS - 1 - strlen(curr->data);
+            if (sisa > 0) {
+                strncat(curr->data, p, panjang < sisa ? panjang : sisa);
+            }
+
+            // Kalau tidak muat → sisa turun ke baris baru
+            if (panjang > sisa) {
+                char tmpSisa[MAX_COLS] = "";
+                int panjangSisa = panjang - sisa;
+                strncat(tmpSisa, p + sisa, panjangSisa < MAX_COLS-1 ? panjangSisa : MAX_COLS-1);
+                insertNodeAt(cursor, cursor->cursorRow + baris + 1, tmpSisa);
+                baris++;
+            }
+
         } else {
+            // Baris berikutnya karena ada \n → buat node baru
             char baris_baru[MAX_COLS] = "";
-            strncat(baris_baru, p, panjang < MAX_COLS-1 ? panjang : MAX_COLS-1);
-            // Langsung panggil insertNodeAt dari irfan1.c
+            int sisa = MAX_COLS - 1;
+            strncat(baris_baru, p, panjang < sisa ? panjang : sisa);
             insertNodeAt(cursor, cursor->cursorRow + baris, baris_baru);
+
+            // Kalau baris baru ini juga tidak muat → sisa turun lagi
+            if (panjang > sisa) {
+                char tmpSisa[MAX_COLS] = "";
+                int panjangSisa = panjang - sisa;
+                strncat(tmpSisa, p + sisa, panjangSisa < MAX_COLS-1 ? panjangSisa : MAX_COLS-1);
+                insertNodeAt(cursor, cursor->cursorRow + baris + 1, tmpSisa);
+                baris++;
+            }
         }
+
         if (!nl) break;
         p = nl + 1;
         baris++;
     }
 
-    // Tempel sisa kanan ke node terakhir
+    // Langkah 7: Update posisi kursor tepat setelah teks yang di-paste
     Node *terakhir = cursor->current;
-    for (int i = 0; i < baris; i++)
+    for (int i = 0; i < barisAkhirPaste; i++)
         if (terakhir->next) terakhir = terakhir->next;
-    strncat(terakhir->data, kanan, MAX_COLS - 1 - strlen(terakhir->data));
 
-    // Update posisi kursor
-    cursor->current = terakhir;
-    cursor->cursorRow += baris;
-    cursor->cursorCol = strlen(terakhir->data) - strlen(kanan);
+    cursor->current   = terakhir;
+    cursor->cursorRow += barisAkhirPaste;
+
+    // Kalau paste satu baris → kolom awal + panjang clipboard
+    // Kalau paste multi baris → mulai dari 0 di baris baru
+    if (barisAkhirPaste == 0) {
+        cursor->cursorCol = kolomAwal + kolomAkhirPaste;
+    } else {
+        cursor->cursorCol = kolomAkhirPaste;
+    }
+
+    if (cursor->cursorCol > MAX_COLS - 1) cursor->cursorCol = MAX_COLS - 1;
 }
