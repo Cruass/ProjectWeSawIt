@@ -5,6 +5,7 @@
 #include "edit_cursor.h"
 #include "rere1.h"
 
+
 Node* getNodeAt(Cursor *cursor, int index) {
     Node *curr = cursor->head;
     int i = 0;
