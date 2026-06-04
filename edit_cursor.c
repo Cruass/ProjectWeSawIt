@@ -83,8 +83,22 @@ int cekPosisiBlok(Cursor *cur, int baris, int kolom) {
 
     return 1; // Posisi berada dalam blok
 }
+void hideCursor() {
+    CONSOLE_CURSOR_INFO info;
+    info.dwSize = 100;
+    info.bVisible = FALSE;
+    SetConsoleCursorInfo(hConsole, &info);
+}
+
+void showCursor() {
+    CONSOLE_CURSOR_INFO info;
+    info.dwSize = 100;
+    info.bVisible = TRUE;
+    SetConsoleCursorInfo(hConsole, &info);
+}
 
 void render(Cursor *cursor) {
+    hideCursor();
     CONSOLE_SCREEN_BUFFER_INFO infoLayar;
     GetConsoleScreenBufferInfo(hConsole, &infoLayar);
     int lebarLayar  = infoLayar.dwSize.X;
@@ -149,6 +163,7 @@ void render(Cursor *cursor) {
 
     // Taruh kursor di posisi yang benar
     gotoxy(cursor->cursorCol, cursor->cursorRow - scrollOffset);
+    showCursor();
 }
 
 
