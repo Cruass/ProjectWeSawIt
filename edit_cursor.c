@@ -168,12 +168,6 @@ void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
     cursor.cursorRow = 0;
     cursor.cursorCol = 0;
 
-    // Inisialisasi undo/redo stack
-    UndoStack undoStack, redoStack;
-    initStack(&undoStack);
-    initStack(&redoStack);
-
-
     int ch;
     while (1) {
         render(&cursor);
@@ -192,23 +186,17 @@ void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
             } else {
                 cursor.selAktif = 0; // Nonaktifkan blok jika Shift tidak ditekan
                 handleCursorMovement(ch, &cursor); // Handle cursor movement jika Shift tidak ditekan
+
             }
-        } else if (ch == 26) { // CTRL+Z untuk undo
-            doUndo(&undoStack, &redoStack, &cursor);
-        } else if (ch == 25) { // CTRL+Y untuk redo
-            doRedo(&undoStack, &redoStack, &cursor);
         } else {
             if (ch == 3) { // CTRL+C untuk copy, dibuat oleh Rayhan
                 copySelection(&cursor);
             } else if (ch == 16) { // CTRL+P untuk paste, dibuat oleh Rayhan
-                // Simpan state sebelum paste
-                saveUndoState(&undoStack, &redoStack, &cursor);
                 pasteClipboard(&cursor);
             } else {
                 cursor.selAktif = 0; // Nonaktifkan blok jika tombol lain ditekan
                 // Simpan state sebelum mengedit
-                saveUndoState(&undoStack, &redoStack, &cursor);
-                handleTextEditing(ch, &cursor); // Memanggil fungsi handleTextEditing dari irfan1.c
+                UndoStack undoStack = {NULL, 0};
             }
         }
     }
