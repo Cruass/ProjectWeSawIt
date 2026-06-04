@@ -153,18 +153,23 @@ void render(Cursor *cursor) {
 
 
 /* Run editor */
-void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
+void runEditor(const char *filename) {
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
     HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
     SetConsoleMode(hInput, 0);
 
-    // Inisialisasi cursor
     Cursor cursor = {NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    // Load file ke linked list
+    // BUG FIX 3: deklarasi undo/redo stack di sini, bukan di dalam else block
+    UndoStack undoStack, redoStack;
+    initStack(&undoStack);
+    initStack(&redoStack);
+
     loadFile(&cursor, filename);
 
+    // BUG FIX 2: pastikan current menunjuk ke head setelah load
+    cursor.current  = cursor.head;
     cursor.cursorRow = 0;
     cursor.cursorCol = 0;
 
@@ -173,32 +178,36 @@ void runEditor(const char *filename) { // Fungsi dibuat oleh Rayhan
         render(&cursor);
         ch = _getch();
 
-        if (ch == 27) { // ESC untuk keluar dan simpan, dibuat oleh Rayhan
+        if (ch == 27) {
             saveFile(&cursor, filename);
             break;
         }
 
-        if (ch == 224) { // Memanggil fungsi cursor movement dari zidan.c
+        if (ch == 224) {
             ch = _getch();
-
             if (GetKeyState(VK_SHIFT) & 0x8000) {
-                handleSelection(ch, &cursor); // Handle selection jika Shift ditekan
+                handleSelection(ch, &cursor);
             } else {
-                cursor.selAktif = 0; // Nonaktifkan blok jika Shift tidak ditekan
-                handleCursorMovement(ch, &cursor); // Handle cursor movement jika Shift tidak ditekan
+                cursor.selAktif = 0;
+                handleCursorMovement(ch, &cursor);
             }
         } else {
-            if (ch == 3) { // CTRL+C untuk copy, dibuat oleh Rayhan
+            if (ch == 3) {
                 copySelection(&cursor);
-            } else if (ch == 16) { // CTRL+P untuk paste, dibuat oleh Rayhan
+            } else if (ch == 16) {
                 pasteClipboard(&cursor);
+            } else if (ch == 26) { // CTRL+Z undo
+                doUndo(&undoStack, &redoStack, &cursor);
+            } else if (ch == 25) { // CTRL+Y redo
+                doRedo(&undoStack, &redoStack, &cursor);
             } else {
-                cursor.selAktif = 0; // Nonaktifkan blok jika tombol lain ditekan
-                // Simpan state sebelum mengedit
-                UndoStack undoStack = {NULL, 0};
+                // BUG FIX 1: panggil handleTextEditing!
+                cursor.selAktif = 0;
+                saveUndoState(&undoStack, &redoStack, &cursor); // simpan state sebelum edit
+                handleTextEditing(ch, &cursor);
             }
         }
     }
 
     freeList(&cursor);
-}   
+}
