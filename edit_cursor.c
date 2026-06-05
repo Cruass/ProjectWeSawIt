@@ -102,15 +102,18 @@ void render(Cursor *cursor) {
     CONSOLE_SCREEN_BUFFER_INFO infoLayar;
     GetConsoleScreenBufferInfo(hConsole, &infoLayar);
     int lebarLayar  = infoLayar.dwSize.X;
-    int tinggiLayar = infoLayar.dwSize.Y - 1; 
+    int tinggiLayar = infoLayar.dwSize.Y - 1;
 
-    // Update scrollOffset agar kursor tetap dalam pandangan
     static int scrollOffset = 0;
-    if (cursor->cursorRow < scrollOffset) scrollOffset = cursor->cursorRow;
-    if (cursor->cursorRow >= scrollOffset + tinggiLayar) 
+    if (cursor->cursorRow < scrollOffset) 
+    {
+        scrollOffset = cursor->cursorRow;
+    }
+    if (cursor->cursorRow >= scrollOffset + tinggiLayar)
+    {
         scrollOffset = cursor->cursorRow - tinggiLayar + 1;
+    }
 
-    // Arahkan ke node awal berdasarkan offset
     Node *cur = cursor->head;
     int i = 0;
     while (cur != NULL && i < scrollOffset) {
@@ -118,50 +121,61 @@ void render(Cursor *cursor) {
         i++;
     }
 
-    // Render baris ke layar
+    WORD warnaNormal  = FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+    WORD warnaSeleksi = BACKGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE;
+
     int baris = 0;
     while (cur != NULL && baris < tinggiLayar) {
-        gotoxy(0, baris);
+    int barisDokumen = scrollOffset + baris;
+    int panjang = strlen(cur->data);
 
-        int barisDokumen = scrollOffset + baris;
-        int panjang = strlen(cur->data);
+    // Tulis seluruh baris 
+    DWORD ditulis;
+    COORD posAwal = {0, (SHORT)baris};
+    WriteConsoleOutputCharacterA(hConsole, cur->data, panjang, posAwal, &ditulis);
 
-        int kolom = 0;
-        while(kolom < panjang) {
-            if (cekPosisiBlok(cursor, barisDokumen, kolom)) {
-                SetConsoleTextAttribute(hConsole, BACKGROUND_BLUE | FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-            }
-            else {
-                SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-            }
-            putchar(cur->data[kolom]);
-            kolom++;
-            
-        } 
-
-        SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-
-        int sisaKanan = lebarLayar - panjang;
-
-        // Bersihkan sisa karakter di ujung kanan
-        if (sisaKanan > 0) {
-            DWORD jumlahDitulis;
-            FillConsoleOutputCharacter(hConsole, ' ', sisaKanan, (COORD){(SHORT)panjang, (SHORT)baris}, &jumlahDitulis);
+    // Bersihkan sisa kanan baris
+    int sisaKanan = lebarLayar - panjang;
+    if (sisaKanan > 0) {
+        FillConsoleOutputCharacter(hConsole, ' ', sisaKanan,
+            (COORD){(SHORT)panjang, (SHORT)baris}, &ditulis);
         }
+
+    // Reset warna seluruh baris ke normal 
+    FillConsoleOutputAttribute(hConsole, warnaNormal, lebarLayar, posAwal, &ditulis);
+
+    // Terapkan warna seleksi hanya di karakter yang terseleksi
+    if (cursor->selAktif) {
+        int kolom = 0;
+        while (kolom < panjang) {
+            if (cekPosisiBlok(cursor, barisDokumen, kolom)) {
+                // Cari ujung blok seleksi yang berurutan
+                int mulai = kolom;
+                while (kolom < panjang && cekPosisiBlok(cursor, barisDokumen, kolom))
+                    kolom++;
+                // Warnai blok seleksi sekaligus
+                COORD posSeleksi = {(SHORT)mulai, (SHORT)baris};
+                FillConsoleOutputAttribute(hConsole, warnaSeleksi, kolom - mulai, posSeleksi, &ditulis);
+                } else {
+                     kolom++;
+                }
+            }
+        }
+
         cur = cur->next;
         baris++;
     }
 
-    // Bersihkan baris di bawah konten (area kosong)
-    int barisSisa = baris;
-    while (barisSisa < tinggiLayar) {
-        DWORD jumlahDitulis;
+    // Bersihkan baris kosong di bawah dokumen
+    while (baris < tinggiLayar) {
+        DWORD ditulis;
         FillConsoleOutputCharacter(hConsole, ' ', lebarLayar,
-            (COORD){0, (SHORT)barisSisa}, &jumlahDitulis);
-        barisSisa++;
+            (COORD){0, (SHORT)baris}, &ditulis);
+        FillConsoleOutputAttribute(hConsole, warnaNormal, lebarLayar,
+            (COORD){0, (SHORT)baris}, &ditulis);
+        baris++;
     }
 
-    // Taruh kursor di posisi yang benar
     gotoxy(cursor->cursorCol, cursor->cursorRow - scrollOffset);
     showCursor();
 }

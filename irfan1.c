@@ -84,7 +84,7 @@ void handleTextEditing(int ch, Cursor *cursor)
 {
     Node *curr = cursor->current;
     if (curr == NULL) return;
-
+ 
     // BACKSPACE
     if (ch == 8) {
         if (cursor->cursorCol > 0) {
@@ -99,7 +99,7 @@ void handleTextEditing(int ch, Cursor *cursor)
             // Gabung dengan baris sebelumnya
             Node *prev = curr->prev;
             if (prev == NULL) return;
-
+ 
             if (curr->data[0] == '\0') {              // Jika baris saat ini kosong
                 deleteNodeAt(cursor, cursor->cursorRow);
                 cursor->cursorRow--;
@@ -107,17 +107,17 @@ void handleTextEditing(int ch, Cursor *cursor)
                 cursor->cursorCol = strlen(prev->data);
                 return;                               // Keluar, tidak perlu gabung teks
                 }  
-
+ 
             int space = MAX_COLS - 1 - strlen(prev->data); // ruang tersisa
-
+ 
             if (space > 0) {
                 // 1. Tempelkan maksimal 'space' karakter dari curr ke prev
                 strncat(prev->data, curr->data, space);
                 prev->data[MAX_COLS - 1] = '\0';   // pastikan null-terminator (jika strncat mentok)
-
+ 
                 // 2. Tentukan berapa karakter yang benar-benar dipindahkan
                 int take = (strlen(curr->data) < space) ? strlen(curr->data) : space;
-
+ 
                 // 3. Geser sisa teks di curr ke kiri (menghapus 'take' karakter pertama)
                 memmove(curr->data, curr->data + take, strlen(curr->data) - take + 1);
 
@@ -130,7 +130,12 @@ void handleTextEditing(int ch, Cursor *cursor)
                 } else {
                     cursor->cursorCol = 0; // kursor di awal sisa teks di baris kedua
                 }
-            }
+            } else { //baru
+                // Baris sebelumnya penuh, tidak bisa gabung → pindah kursor ke ujung baris sebelumnya saja //baru
+                cursor->current = prev; //baru
+                cursor->cursorRow--; //baru
+                cursor->cursorCol = strlen(prev->data); //baru
+            } //baru
         }
     }
 
@@ -159,7 +164,7 @@ void handleTextEditing(int ch, Cursor *cursor)
                 strcpy(tail, &curr->data[cursor->cursorCol]);
             }
             curr->data[cursor->cursorCol] = '\0';
-
+ 
             insertNodeAt(cursor, cursor->cursorRow + 1, tail);
             cursor->cursorRow++;
             cursor->cursorCol = 0;
@@ -167,7 +172,7 @@ void handleTextEditing(int ch, Cursor *cursor)
             curr = cursor->current;
             if (curr == NULL) return;
         }
-
+ 
         // Sisipkan karakter di posisi kursor
         int len = strlen(curr->data);
         if (len < MAX_COLS - 1) {
@@ -175,6 +180,47 @@ void handleTextEditing(int ch, Cursor *cursor)
                 curr->data[i + 1] = curr->data[i];
             curr->data[cursor->cursorCol] = (char)ch;
             cursor->cursorCol++;
-        }
+        } else { //baru
+            // Baris penuh: cek karakter paling kanan //baru
+            char lastChar = curr->data[MAX_COLS - 2]; //baru
+            if (lastChar == ' ') { //baru
+                // Karakter paling kanan spasi → hapus spasi, sisip karakter baru di posisi kursor //baru
+                for (int i = MAX_COLS - 2; i > cursor->cursorCol; i--) //baru
+                    curr->data[i] = curr->data[i - 1]; //baru
+                curr->data[cursor->cursorCol] = (char)ch; //baru
+                curr->data[MAX_COLS - 1] = '\0'; //baru
+                cursor->cursorCol++; //baru
+            } else { //baru
+                // Karakter paling kanan bukan spasi → overflow ke baris berikutnya //baru
+                char overflow[2] = { lastChar, '\0' }; //baru
+                for (int i = MAX_COLS - 2; i > cursor->cursorCol; i--) //baru
+                    curr->data[i] = curr->data[i - 1]; //baru
+                curr->data[cursor->cursorCol] = (char)ch; //baru
+                curr->data[MAX_COLS - 1] = '\0'; //baru
+                cursor->cursorCol++; //baru
+ 
+                if (curr->next != NULL) { //baru
+                    // Sisip overflow di awal baris berikutnya //baru
+                    Node *nextNode = curr->next; //baru
+                    int nextLen = strlen(nextNode->data); //baru
+                    if (nextLen < MAX_COLS - 1) { //baru
+                        for (int i = nextLen; i >= 0; i--) //baru
+                            nextNode->data[i + 1] = nextNode->data[i]; //baru
+                        nextNode->data[0] = overflow[0]; //baru
+                    } //baru
+                } else { //baru
+                    // Tidak ada baris berikutnya, buat baris baru //baru
+                    insertNodeAt(cursor, cursor->cursorRow + 1, overflow); //baru
+                } //baru
+ 
+                // Kalau kursor sudah di ujung baris, pindah ke baris berikutnya //baru
+                if (cursor->cursorCol >= MAX_COLS - 1) { //baru
+                    cursor->current = curr->next; //baru
+                    cursor->cursorRow++; //baru
+                    cursor->cursorCol = 0; //baru
+                    if (cursor->current == NULL) cursor->current = curr; //baru
+                } //baru
+            } //baru
+        } //baru
     }
 }
