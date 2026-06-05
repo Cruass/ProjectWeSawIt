@@ -84,7 +84,7 @@ void handleTextEditing(int ch, Cursor *cursor)
 {
     Node *curr = cursor->current;
     if (curr == NULL) return;
- 
+
     // BACKSPACE
     if (ch == 8) {
         if (cursor->cursorCol > 0) {
@@ -96,44 +96,42 @@ void handleTextEditing(int ch, Cursor *cursor)
                 cursor->cursorCol--;
             }
         } else if (cursor->cursorRow > 0) {
-            // Gabung dengan baris sebelumnya
             Node *prev = curr->prev;
             if (prev == NULL) return;
- 
-            if (curr->data[0] == '\0') {              // Jika baris saat ini kosong
+
+            int currLen = strlen(curr->data);
+            int prevLen = strlen(prev->data);
+            int space   = MAX_COLS - 1 - prevLen;
+
+            if (currLen == 0) {
+                // Baris kosong → hapus saja
                 deleteNodeAt(cursor, cursor->cursorRow);
                 cursor->cursorRow--;
                 cursor->current = prev;
-                cursor->cursorCol = strlen(prev->data);
-                return;                               // Keluar, tidak perlu gabung teks
-                }  
- 
-            int space = MAX_COLS - 1 - strlen(prev->data); // ruang tersisa
- 
-            if (space > 0) {
-                // 1. Tempelkan maksimal 'space' karakter dari curr ke prev
-                strncat(prev->data, curr->data, space);
-                prev->data[MAX_COLS - 1] = '\0';   // pastikan null-terminator (jika strncat mentok)
- 
-                // 2. Tentukan berapa karakter yang benar-benar dipindahkan
-                int take = (strlen(curr->data) < space) ? strlen(curr->data) : space;
- 
-                // 3. Geser sisa teks di curr ke kiri (menghapus 'take' karakter pertama)
-                memmove(curr->data, curr->data + take, strlen(curr->data) - take + 1);
+                cursor->cursorCol = prevLen;
 
-                // 4. Jika curr sekarang kosong, hapus node-nya; jika tidak, kursor di awal sisa
-                if (curr->data[0] == '\0') {
-                    deleteNodeAt(cursor, cursor->cursorRow);
-                    cursor->cursorRow--;
-                    cursor->current = prev;
-                    cursor->cursorCol = strlen(prev->data); // kursor di akhir teks gabungan
-                } else {
-                    cursor->cursorCol = 0; // kursor di awal sisa teks di baris kedua
-                }
-            }else {
+            } else if (space >= currLen) {
+                // Semua curr muat → gabung, hapus curr
+                strcat(prev->data, curr->data);
+                cursor->cursorCol = prevLen;  // kursor di posisi sambungan
+                deleteNodeAt(cursor, cursor->cursorRow);
+                cursor->cursorRow--;
+                cursor->current = prev;
+
+            } else if (space > 0) {
+                // Sebagian muat → ambil 'space' karakter, sisa tetap di curr
+                strncat(prev->data, curr->data, space);
+                prev->data[MAX_COLS - 1] = '\0';
+                memmove(curr->data, curr->data + space, currLen - space + 1);
+                cursor->cursorCol = prevLen;  // kursor di posisi sambungan
+                cursor->cursorRow--;
+                cursor->current = prev;
+
+            } else {
+                // prev sudah penuh → kursor naik ke akhir prev saja
                 cursor->current = prev;
                 cursor->cursorRow--;
-                cursor->cursorCol = strlen(prev->data); // kursor di akhir baris sebelumnya
+                cursor->cursorCol = prevLen;
             }
         }
     }
