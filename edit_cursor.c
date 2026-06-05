@@ -171,16 +171,19 @@ void render(Cursor *cursor) {
 void runEditor(const char *filename) {
     hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
+    //Fix bug: tambah FlushConsoleInputBuffer setelah SetConsoleMode
     HANDLE hInput = GetStdHandle(STD_INPUT_HANDLE);
+    DWORD dwOriginalMode;
+    GetConsoleMode(hInput, &dwOriginalMode);
     SetConsoleMode(hInput, 0);
-
+    FlushConsoleInputBuffer(hInput);
     Cursor cursor = {NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    // BUG FIX 3: deklarasi undo/redo stack di sini, bukan di dalam else block
-    UndoStack *undoStack = (UndoStack *)malloc(sizeof(UndoStack));
-UndoStack *redoStack = (UndoStack *)malloc(sizeof(UndoStack));
-initStack(undoStack);
-initStack(redoStack);
+    // BUG FIX 3: deklarasi undo/redo stack di sini
+    UndoStack *undoStack = (UndoStack *)malloc(sizeof(UndoStack));  //Fix bug: mengganti deklarasi
+    UndoStack *redoStack = (UndoStack *)malloc(sizeof(UndoStack));
+    initStack(undoStack);
+    initStack(redoStack);
 
     loadFile(&cursor, filename);
 
@@ -213,7 +216,7 @@ initStack(redoStack);
                 copySelection(&cursor);
             } else if (ch == 16) {
                 pasteClipboard(&cursor);
-            } else if (ch == 26) { // CTRL+Z undo
+            } else if (ch == 26) { // CTRL+Z undo       //Fix Bug: karena sudah pake pointer jadi gaperlu pake &cursor lagi
                 doUndo(undoStack, redoStack, &cursor);
             } else if (ch == 25) { // CTRL+Y redo
                 doRedo(undoStack, redoStack, &cursor);
@@ -225,8 +228,10 @@ initStack(redoStack);
             }
         }
     }
-
+    //Fix bug: pastikan semua resource dibersihkan sebelum keluar
     freeList(&cursor);
-free(undoStack);
-free(redoStack);
+    free(undoStack);
+    free(redoStack);
+    SetConsoleMode(hInput, dwOriginalMode);
+    system("cls");
 }

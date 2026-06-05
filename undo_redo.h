@@ -27,7 +27,7 @@ DataUndo popDataUndo    (UndoStack *stack);
 
 //Fungsi untuk menyimpan state
 void saveUndoState  (UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);
-void doUndo         (UndoStack *udoStack, UndoStack *redoStack, Cursor *cursor);
+void doUndo         (UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);
 void doRedo         (UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);
 
 //Helper
