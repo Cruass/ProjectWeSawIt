@@ -3,9 +3,9 @@
 
 #include "linkedlist.h"
 
-#define MAX_UNDO 50
-#define MAX_LINES 500
+#define MAX_LINES 500   // maksimal baris yang disimpan per state (tetap)
 
+// Data dari satu state undo/redo (sama seperti sebelumnya)
 typedef struct {
     char lines[MAX_LINES][MAX_COLS];
     int lineCount;
@@ -13,25 +13,32 @@ typedef struct {
     int cursorCol;
 } DataUndo;
 
+// Node untuk linked list stack
+typedef struct UndoNode {
+    DataUndo data;
+    struct UndoNode *next;
+} UndoNode;
+
+// Stack menggunakan linked list
 typedef struct {
-    DataUndo states[MAX_UNDO];
-    int top;
+    UndoNode *top;
+    int size;           // opsional: jumlah elemen saat ini
 } UndoStack;
 
-//Fungsi stack
-void initStack          (UndoStack *stack);
-int isStackEmpty        (UndoStack *stack);
-int isStackFull         (UndoStack *stack);
-void pushDataUndo       (UndoStack *stack, DataUndo d);
-DataUndo popDataUndo    (UndoStack *stack);
+// Fungsi stack
+void initStack(UndoStack *s);
+int isStackEmpty(UndoStack *s);
+void pushDataUndo(UndoStack *s, DataUndo d);
+DataUndo popDataUndo(UndoStack *s);
+void freeUndoStack(UndoStack *s);   // membebaskan seluruh isi stack
 
-//Fungsi untuk menyimpan state
-void saveUndoState  (UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);
-void doUndo         (UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);
-void doRedo         (UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);
+// Fungsi untuk menyimpan state
+void saveUndoState(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);
+void doUndo(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);
+void doRedo(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);
 
-//Helper
-DataUndo captureDataUndo (Cursor *cursor);
-void applyDataUndo       (Cursor *cursor, DataUndo d);
+// Helper
+DataUndo captureDataUndo(Cursor *cursor);
+void applyDataUndo(Cursor *cursor, DataUndo d);
 
 #endif

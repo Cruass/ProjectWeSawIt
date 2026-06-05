@@ -243,7 +243,10 @@ void runEditor(const char *filename) {
         }
     }
     //Fix bug: pastikan semua resource dibersihkan sebelum keluar
+    // Bersihkan semua resource
     freeList(&cursor);
+    freeUndoStack(undoStack);   // bebaskan node-node di dalam stack
+    freeUndoStack(redoStack);
     free(undoStack);
     free(redoStack);
     SetConsoleMode(hInput, dwOriginalMode);

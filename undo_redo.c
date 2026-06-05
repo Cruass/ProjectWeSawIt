@@ -3,39 +3,53 @@
 #include <stdlib.h>
 #include "undo_redo.h"
 
-// Inisialisasi stack (top = -1 berarti kosong)
+// Inisialisasi stack kosong
 void initStack(UndoStack *s) {
-    s->top = -1;
+    s->top = NULL;
+    s->size = 0;
 }
 
 int isStackEmpty(UndoStack *s) {
-    return s->top == -1;
+    return s->top == NULL;
 }
 
-int isStackFull(UndoStack *s) {
-    return s->top == MAX_UNDO - 1;
-}
-
-// Push: simpan DataUndo ke puncak stack
+// Push: tambahkan node di puncak
 void pushDataUndo(UndoStack *s, DataUndo d) {
-    if (isStackFull(s)) {
-        for (int i = 0; i < MAX_UNDO - 1; i++) {
-            s->states[i] = s->states[i + 1];  
-        }
-        s->states[s->top] = d;                 
-    } else {
-        s->top++;
-        s->states[s->top] = d;                 
-    }
+    UndoNode *newNode = (UndoNode*)malloc(sizeof(UndoNode));
+    if (newNode == NULL) return;  // gagal alokasi
+    newNode->data = d;
+    newNode->next = s->top;
+    s->top = newNode;
+    s->size++;
 }
 
+// Pop: hapus node puncak dan kembalikan datanya
 DataUndo popDataUndo(UndoStack *s) {
-    DataUndo d = s->states[s->top];           
-    s->top--;
+    // DataUndo kosong sebagai fallback
+    DataUndo kosong;
+    kosong.lineCount = 0;
+    kosong.cursorRow = 0;
+    kosong.cursorCol = 0;
+
+    if (isStackEmpty(s)) return kosong;
+
+    UndoNode *temp = s->top;
+    DataUndo d = temp->data;
+    s->top = s->top->next;
+    free(temp);
+    s->size--;
     return d;
 }
 
-// Capture: baca seluruh isi linked list → simpan ke DataUndo
+// Bebaskan seluruh node dalam stack
+void freeUndoStack(UndoStack *s) {
+    while (!isStackEmpty(s)) {
+        popDataUndo(s);   // pop sudah free node
+    }
+    // Tidak perlu free(s) karena s sendiri dialokasikan di luar
+}
+
+// Capture: baca seluruh linked list editor → simpan ke DataUndo
 DataUndo captureDataUndo(Cursor *cursor) {
     DataUndo d;
     d.lineCount = 0;
@@ -52,7 +66,7 @@ DataUndo captureDataUndo(Cursor *cursor) {
     return d;
 }
 
-// Apply: terapkan DataUndo ke linked list (hapus list lama, isi ulang)
+// Apply: terapkan DataUndo ke linked list editor
 void applyDataUndo(Cursor *cursor, DataUndo d) {
     // Bebaskan linked list yang sekarang
     freeList(cursor);
@@ -62,50 +76,64 @@ void applyDataUndo(Cursor *cursor, DataUndo d) {
         appendNode(cursor, d.lines[i]);
     }
 
+    // Jika setelah load tidak ada baris (misal lineCount = 0), buat baris kosong
+    if (cursor->rowCount == 0) {
+        appendNode(cursor, "");
+    }
+
     // Restore posisi kursor
     cursor->cursorRow = d.cursorRow;
     cursor->cursorCol = d.cursorCol;
 
+    // Pastikan cursorRow tidak melebihi jumlah baris
+    if (cursor->cursorRow >= cursor->rowCount)
+        cursor->cursorRow = cursor->rowCount - 1;
+    if (cursor->cursorRow < 0) cursor->cursorRow = 0;
+
     // Set cursor->current ke node yang sesuai dengan cursorRow
     Node *curr = cursor->head;
-    for (int i = 0; i < d.cursorRow && curr != NULL; i++) {
+    for (int i = 0; i < cursor->cursorRow && curr != NULL; i++) {
         curr = curr->next;
-    } 
-    cursor->current = curr;
+    }
+    cursor->current = curr ? curr : cursor->head;
+
+    // Pastikan kolom tidak melebihi panjang baris
+    int len = (cursor->current) ? strlen(cursor->current->data) : 0;
+    if (cursor->cursorCol > len) cursor->cursorCol = len;
 }
 
-//Dipanggil SEBELUM setiap perubahan teks
-// Menyiapkan kondisi saat ini ke undo stack dan mengosongkan redo stack
+// Dipanggil SEBELUM setiap perubahan teks
 void saveUndoState(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor) {
     DataUndo d = captureDataUndo(cursor);
     pushDataUndo(undoStack, d);
-    //Setiap ada aksi baru, redo stack harus dikosongkan karena percabangan history tidak didukung
+
+    // Setiap aksi baru, redo stack harus dikosongkan
+    freeUndoStack(redoStack);
     initStack(redoStack);
 }
 
-//Ctrl+Z: terapkan undo
+// Ctrl+Z
 void doUndo(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor) {
-    if(isStackEmpty(undoStack)) {
-        return;
-    }
-    //Simpan kondisi sekarang ke re stack sebelum undo
+    if (isStackEmpty(undoStack)) return;
+
+    // Simpan kondisi sekarang ke redo stack
     DataUndo current = captureDataUndo(cursor);
     pushDataUndo(redoStack, current);
 
+    // Ambil state sebelumnya
     DataUndo prev = popDataUndo(undoStack);
     applyDataUndo(cursor, prev);
-} 
+}
 
-//Ctrl+Y: terapkan redo
+// Ctrl+Y
 void doRedo(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor) {
-    if(isStackEmpty(redoStack)) {
-        return;
-    }
-    //Simpan kondisi sekarang ke undo stack dulu
+    if (isStackEmpty(redoStack)) return;
+
+    // Simpan kondisi sekarang ke undo stack
     DataUndo current = captureDataUndo(cursor);
     pushDataUndo(undoStack, current);
-    
-    //Ammbil state redo dari redo stack
+
+    // Ambil state redo
     DataUndo next = popDataUndo(redoStack);
     applyDataUndo(cursor, next);
 }
