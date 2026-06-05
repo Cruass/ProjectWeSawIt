@@ -177,9 +177,10 @@ void runEditor(const char *filename) {
     Cursor cursor = {NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0};
 
     // BUG FIX 3: deklarasi undo/redo stack di sini, bukan di dalam else block
-    UndoStack undoStack, redoStack;
-    initStack(&undoStack);
-    initStack(&redoStack);
+    UndoStack *undoStack = (UndoStack *)malloc(sizeof(UndoStack));
+UndoStack *redoStack = (UndoStack *)malloc(sizeof(UndoStack));
+initStack(undoStack);
+initStack(redoStack);
 
     loadFile(&cursor, filename);
 
@@ -213,17 +214,19 @@ void runEditor(const char *filename) {
             } else if (ch == 16) {
                 pasteClipboard(&cursor);
             } else if (ch == 26) { // CTRL+Z undo
-                doUndo(&undoStack, &redoStack, &cursor);
+                doUndo(undoStack, redoStack, &cursor);
             } else if (ch == 25) { // CTRL+Y redo
-                doRedo(&undoStack, &redoStack, &cursor);
+                doRedo(undoStack, redoStack, &cursor);
             } else {
                 // BUG FIX 1: panggil handleTextEditing!
                 cursor.selAktif = 0;
-                saveUndoState(&undoStack, &redoStack, &cursor); // simpan state sebelum edit
+                saveUndoState(undoStack, redoStack, &cursor); // simpan state sebelum edit
                 handleTextEditing(ch, &cursor);
             }
         }
     }
 
     freeList(&cursor);
+free(undoStack);
+free(redoStack);
 }
