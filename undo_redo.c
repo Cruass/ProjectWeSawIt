@@ -44,12 +44,11 @@ DataUndo popDataUndo(UndoStack *s) {
 // Bebaskan seluruh node dalam stack
 void freeUndoStack(UndoStack *s) {
     while (!isStackEmpty(s)) {
-        popDataUndo(s);   // pop sudah free node
+        popDataUndo(s);  
     }
-    // Tidak perlu free(s) karena s sendiri dialokasikan di luar
 }
 
-// Capture: baca seluruh linked list editor → simpan ke DataUndo
+// Capture: baca semua linked list editor → simpan ke DataUndo
 DataUndo captureDataUndo(Cursor *cursor) {
     DataUndo d;
     d.lineCount = 0;
@@ -76,7 +75,6 @@ void applyDataUndo(Cursor *cursor, DataUndo d) {
         appendNode(cursor, d.lines[i]);
     }
 
-    // Jika setelah load tidak ada baris (misal lineCount = 0), buat baris kosong
     if (cursor->rowCount == 0) {
         appendNode(cursor, "");
     }
@@ -85,19 +83,18 @@ void applyDataUndo(Cursor *cursor, DataUndo d) {
     cursor->cursorRow = d.cursorRow;
     cursor->cursorCol = d.cursorCol;
 
-    // Pastikan cursorRow tidak melebihi jumlah baris
+    // Buat pastiin cursorRow tidak melebihi jumlah baris
     if (cursor->cursorRow >= cursor->rowCount)
         cursor->cursorRow = cursor->rowCount - 1;
     if (cursor->cursorRow < 0) cursor->cursorRow = 0;
 
-    // Set cursor->current ke node yang sesuai dengan cursorRow
     Node *curr = cursor->head;
     for (int i = 0; i < cursor->cursorRow && curr != NULL; i++) {
         curr = curr->next;
     }
     cursor->current = curr ? curr : cursor->head;
 
-    // Pastikan kolom tidak melebihi panjang baris
+    // Buat pastiin kolom tidak melebihi panjang baris
     int len = (cursor->current) ? strlen(cursor->current->data) : 0;
     if (cursor->cursorCol > len) cursor->cursorCol = len;
 }

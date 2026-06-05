@@ -3,9 +3,9 @@
 
 #include "linkedlist.h"
 
-#define MAX_LINES 500   // maksimal baris yang disimpan per state (tetap)
+#define MAX_LINES 500   
 
-// Data dari satu state undo/redo (sama seperti sebelumnya)
+// Data dari satu state undo/redo 
 typedef struct {
     char lines[MAX_LINES][MAX_COLS];
     int lineCount;
@@ -22,7 +22,7 @@ typedef struct UndoNode {
 // Stack menggunakan linked list
 typedef struct {
     UndoNode *top;
-    int size;           // opsional: jumlah elemen saat ini
+    int size;           
 } UndoStack;
 
 // Fungsi stack
@@ -30,7 +30,7 @@ void initStack(UndoStack *s);
 int isStackEmpty(UndoStack *s);
 void pushDataUndo(UndoStack *s, DataUndo d);
 DataUndo popDataUndo(UndoStack *s);
-void freeUndoStack(UndoStack *s);   // membebaskan seluruh isi stack
+void freeUndoStack(UndoStack *s);   // bebasin semua isi stack
 
 // Fungsi untuk menyimpan state
 void saveUndoState(UndoStack *undoStack, UndoStack *redoStack, Cursor *cursor);

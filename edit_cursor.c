@@ -141,19 +141,15 @@ void render(Cursor *cursor) {
             (COORD){(SHORT)panjang, (SHORT)baris}, &ditulis);
         }
 
-    // Reset warna seluruh baris ke normal 
     FillConsoleOutputAttribute(hConsole, warnaNormal, lebarLayar, posAwal, &ditulis);
 
-    // Terapkan warna seleksi hanya di karakter yang terseleksi
     if (cursor->selAktif) {
         int kolom = 0;
         while (kolom < panjang) {
             if (cekPosisiBlok(cursor, barisDokumen, kolom)) {
-                // Cari ujung blok seleksi yang berurutan
                 int mulai = kolom;
                 while (kolom < panjang && cekPosisiBlok(cursor, barisDokumen, kolom))
                     kolom++;
-                // Warnai blok seleksi sekaligus
                 COORD posSeleksi = {(SHORT)mulai, (SHORT)baris};
                 FillConsoleOutputAttribute(hConsole, warnaSeleksi, kolom - mulai, posSeleksi, &ditulis);
                 } else {
@@ -193,7 +189,7 @@ void runEditor(const char *filename) {
     FlushConsoleInputBuffer(hInput);
     Cursor cursor = {NULL, NULL, 0, 0, 0, 0, 0, 0, 0, 0};
 
-    // BUG FIX 3: deklarasi undo/redo stack di sini
+    // BUG FIX 3: deklarasi undo/redo stack 
     UndoStack *undoStack = (UndoStack *)malloc(sizeof(UndoStack));  //Fix bug: mengganti deklarasi
     UndoStack *redoStack = (UndoStack *)malloc(sizeof(UndoStack));
     initStack(undoStack);
@@ -201,7 +197,7 @@ void runEditor(const char *filename) {
 
     loadFile(&cursor, filename);
 
-    // BUG FIX 2: pastikan current menunjuk ke head setelah load
+    // BUG FIX 2: mastiin current nunjuk ke head setelah load
     cursor.current  = cursor.head;
     cursor.cursorRow = 0;
     cursor.cursorCol = 0;
@@ -221,7 +217,7 @@ void runEditor(const char *filename) {
             if (GetKeyState(VK_SHIFT) & 0x8000) {
                 handleSelection(ch, &cursor);
             } else {
-                cursor.selAktif = 0; // Nonaktifkan blok jika Shift tidak ditekan
+                cursor.selAktif = 0; 
                 handleCursorMovement(ch, &cursor); // Handle cursor movement jika Shift tidak ditekan
 
             }
@@ -230,20 +226,18 @@ void runEditor(const char *filename) {
                 copySelection(&cursor);
             } else if (ch == 16) {
                 pasteClipboard(&cursor);
-            } else if (ch == 26) { // CTRL+Z undo       //Fix Bug: karena sudah pake pointer jadi gaperlu pake &cursor lagi
+            } else if (ch == 26) { // CTRL+Z undo       
                 doUndo(undoStack, redoStack, &cursor);
             } else if (ch == 25) { // CTRL+Y redo
                 doRedo(undoStack, redoStack, &cursor);
             } else {
-                // BUG FIX 1: panggil handleTextEditing!
                 cursor.selAktif = 0;
                 saveUndoState(undoStack, redoStack, &cursor); // simpan state sebelum edit
                 handleTextEditing(ch, &cursor);
             }
         }
     }
-    //Fix bug: pastikan semua resource dibersihkan sebelum keluar
-    // Bersihkan semua resource
+    //Fix bug: buat pastikan semua resource dibersihin sebelum keluar
     freeList(&cursor);
     freeUndoStack(undoStack);   // bebaskan node-node di dalam stack
     freeUndoStack(redoStack);
