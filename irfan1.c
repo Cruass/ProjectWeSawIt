@@ -130,6 +130,10 @@ void handleTextEditing(int ch, Cursor *cursor)
                 } else {
                     cursor->cursorCol = 0; // kursor di awal sisa teks di baris kedua
                 }
+            }else {
+                cursor->current = prev;
+                cursor->cursorRow--;
+                cursor->cursorCol = strlen(prev->data); // kursor di akhir baris sebelumnya
             }
         }
     }
@@ -153,28 +157,66 @@ void handleTextEditing(int ch, Cursor *cursor)
     // KARAKTER BIASA (ASCII 32-126)
     else if (ch >= 32 && ch <= 126) {
         // Jika kolom mentok, buat baris baru (word-wrap)
-        if (cursor->cursorCol >= MAX_COLS - 1) {
-            char tail[MAX_COLS] = "";
-            if (cursor->cursorCol < (int)strlen(curr->data)) {
-                strcpy(tail, &curr->data[cursor->cursorCol]);
-            }
-            curr->data[cursor->cursorCol] = '\0';
+    if (cursor->cursorCol >= MAX_COLS - 1) {
+        char tail[MAX_COLS] = "";
+        strcpy(tail, &curr->data[cursor->cursorCol]);
+        curr->data[cursor->cursorCol] = '\0';
 
-            insertNodeAt(cursor, cursor->cursorRow + 1, tail);
-            cursor->cursorRow++;
-            cursor->cursorCol = 0;
-            cursor->current = curr->next;
-            curr = cursor->current;
-            if (curr == NULL) return;
-        }
+        insertNodeAt(cursor, cursor->cursorRow + 1, tail);
+        cursor->cursorRow++;
+        cursor->cursorCol = 0;
+        cursor->current = curr->next;
+        curr = cursor->current;
+        if (curr == NULL) return;
+    }
 
         // Sisipkan karakter di posisi kursor
-        int len = strlen(curr->data);
-        if (len < MAX_COLS - 1) {
-            for (int i = len; i >= cursor->cursorCol; i--)
-                curr->data[i + 1] = curr->data[i];
+    int len = strlen(curr->data);
+    if (len < MAX_COLS - 1) {
+        for (int i = len; i >= cursor->cursorCol; i--)
+             curr->data[i + 1] = curr->data[i];
+        curr->data[cursor->cursorCol] = (char)ch;
+        cursor->cursorCol++;
+    } else {
+            // Baris Penuh : cek karakter paling kanan
+        char lastChar = curr->data[MAX_COLS - 2];
+        if (lastChar == ' ') {
+            for (int i = MAX_COLS - 2; i > cursor->cursorCol; i--)
+                curr->data[i] = curr->data[i-1];
             curr->data[cursor->cursorCol] = (char)ch;
+            curr->data[MAX_COLS - 1] = '\0';
             cursor->cursorCol++;
+        } else {
+
+            // Karakter paling kanan bukan spasi => overflow ke baris berikutnya
+            char overflow[2] = { lastChar, '\0'};
+            for (int i = MAX_COLS - 2; i > cursor->cursorCol; i--)
+                curr->data[i] = curr->data[i-1];
+            curr->data[cursor->cursorCol] = (char)ch;
+            curr->data[MAX_COLS -1] = '\0';
+            cursor->cursorCol++;
+
+            if (curr->next != NULL) {
+                // Sisip overflow di awal baris berikutnya
+                Node *nextNode = curr->next;
+                int nextLen = strlen(nextNode->data);
+                if (nextLen < MAX_COLS - 1) {
+                        for (int i = nextLen; i >= 0; i--)
+                            nextNode->data[i+1] = nextNode->data[i];
+                        nextNode->data[0] = overflow[0];    
+                    }
+                } else {
+                    //Tidak ada baris berikutnya, buat baris baru
+                    insertNodeAt(cursor, cursor->cursorRow + 1, overflow);
+                }
+            //Kalau kursor sudah di ujung baris, pindah ke bari berikutnya
+                if (cursor->cursorCol >= MAX_COLS - 1) {
+                    cursor->current = curr->next;
+                    cursor->cursorRow++;
+                    cursor->cursorCol = 0;
+                    if (cursor->current == NULL) cursor->current = curr;
+                }
+            }
         }
     }
 }
